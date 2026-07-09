@@ -1,73 +1,128 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+} from 'firebase/auth'
+import { doc, setDoc, getDoc, onSnapshot } from 'firebase/firestore'
+import { auth, db } from '../config/firebase'
 
 export const ROLES = {
-  GENERAL:      'general',
-  CLIENTE:      'cliente',
-  MINORISTA:    'minorista',
-  MAYORISTA:    'mayorista',
-  EMPLEADO:     'empleado',
-  ADMINISTRADOR:'administrador',
+  GENERAL:       'general',
+  CLIENTE:       'cliente',
+  MINORISTA:     'minorista',
+  MAYORISTA:     'mayorista',
+  EMPLEADO:      'empleado',
+  ADMINISTRADOR: 'administrador',
 }
-
-const MOCK_USERS = [
-  { id: 1, email: 'admin@aromascba.com',   password: '1234', name: 'Admin',      role: ROLES.ADMINISTRADOR },
-  { id: 2, email: 'empleado@aromascba.com',password: '1234', name: 'Empleado',   role: ROLES.EMPLEADO },
-  { id: 3, email: 'mayorista@test.com',    password: '1234', name: 'Mayorista',  role: ROLES.MAYORISTA },
-  { id: 4, email: 'cliente@test.com',      password: '1234', name: 'Cliente',    role: ROLES.CLIENTE },
-  { id: 5, email: 'minorista@test.com',    password: '1234', name: 'Minorista',  role: ROLES.MINORISTA },
-]
 
 const AuthContext = createContext()
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('aromascba_user')
-    return saved ? JSON.parse(saved) : null
-  })
+  const [user, setUser]           = useState(null)
+  const [authLoading, setAuthLoading] = useState(true)
   const [authModal, setAuthModal] = useState(false)
-  const [authTab, setAuthTab] = useState('login')
+  const [authTab, setAuthTab]     = useState('login')
 
-  const login = (email, password) => {
-    const found = MOCK_USERS.find(u => u.email === email && u.password === password)
-    if (!found) return { error: 'Email o contraseña incorrectos.' }
-    const { password: _, ...safeUser } = found
-    setUser(safeUser)
-    localStorage.setItem('aromascba_user', JSON.stringify(safeUser))
-    setAuthModal(false)
-    return { success: true }
+  useEffect(() => {
+    let unsubProfile = null
+
+    const unsubAuth = onAuthStateChanged(auth, (firebaseUser) => {
+      if (unsubProfile) { unsubProfile(); unsubProfile = null }
+
+      if (firebaseUser) {
+        unsubProfile = onSnapshot(doc(db, 'users', firebaseUser.uid), (snap) => {
+          if (snap.exists()) {
+            setUser({ uid: firebaseUser.uid, ...snap.data() })
+          } else {
+            setUser({ uid: firebaseUser.uid, email: firebaseUser.email, name: firebaseUser.displayName || '', role: ROLES.CLIENTE })
+          }
+          setAuthLoading(false)
+        })
+      } else {
+        setUser(null)
+        setAuthLoading(false)
+      }
+    })
+
+    return () => { unsubAuth(); if (unsubProfile) unsubProfile() }
+  }, [])
+
+  const login = async (email, password) => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password)
+      setAuthModal(false)
+      return { success: true }
+    } catch (err) {
+      return { error: mapError(err.code) }
+    }
   }
 
-  const loginWithGoogle = () => {
-    const mockUser = { id: 99, email: 'google@user.com', name: 'Usuario Google', role: ROLES.CLIENTE }
-    setUser(mockUser)
-    localStorage.setItem('aromascba_user', JSON.stringify(mockUser))
-    setAuthModal(false)
+  const register = async (name, email, password, role = ROLES.CLIENTE) => {
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, password)
+      await setDoc(doc(db, 'users', cred.user.uid), {
+        name,
+        email,
+        role,
+        createdAt: new Date().toISOString(),
+        favorites: [],
+      })
+      setAuthModal(false)
+      return { success: true }
+    } catch (err) {
+      return { error: mapError(err.code) }
+    }
   }
 
-  const register = (name, email, role = ROLES.CLIENTE) => {
-    const newUser = { id: Date.now(), email, name, role }
-    setUser(newUser)
-    localStorage.setItem('aromascba_user', JSON.stringify(newUser))
-    setAuthModal(false)
-    return { success: true }
+  const loginWithGoogle = async () => {
+    try {
+      const cred = await signInWithPopup(auth, new GoogleAuthProvider())
+      const profileRef = doc(db, 'users', cred.user.uid)
+      const snap = await getDoc(profileRef)
+      if (!snap.exists()) {
+        await setDoc(profileRef, {
+          name:      cred.user.displayName || cred.user.email,
+          email:     cred.user.email,
+          role:      ROLES.CLIENTE,
+          createdAt: new Date().toISOString(),
+          favorites: [],
+        })
+      }
+      setAuthModal(false)
+      return { success: true }
+    } catch (err) {
+      return { error: mapError(err.code) }
+    }
   }
 
-  const logout = () => {
-    setUser(null)
-    localStorage.removeItem('aromascba_user')
+  const logout = () => signOut(auth)
+
+  const resetPassword = async (email) => {
+    try {
+      await sendPasswordResetEmail(auth, email)
+      return { success: true }
+    } catch (err) {
+      return { error: mapError(err.code) }
+    }
   }
 
   const openLogin  = () => { setAuthTab('login');    setAuthModal(true) }
   const openSignup = () => { setAuthTab('register'); setAuthModal(true) }
 
   const isWholesale = user?.role === ROLES.MAYORISTA || user?.role === ROLES.EMPLEADO || user?.role === ROLES.ADMINISTRADOR
-  const canBuy      = user && user.role !== ROLES.GENERAL
+  const canBuy      = !!user
   const isAdmin     = user?.role === ROLES.ADMINISTRADOR
   const isEmployee  = user?.role === ROLES.EMPLEADO || user?.role === ROLES.ADMINISTRADOR
 
   return (
     <AuthContext.Provider value={{
-      user, login, loginWithGoogle, register, logout,
+      user, authLoading,
+      login, loginWithGoogle, register, logout, resetPassword,
       authModal, setAuthModal, authTab, setAuthTab,
       openLogin, openSignup,
       isWholesale, canBuy, isAdmin, isEmployee,
@@ -78,3 +133,18 @@ export function AuthProvider({ children }) {
 }
 
 export const useAuth = () => useContext(AuthContext)
+
+function mapError(code) {
+  const map = {
+    'auth/user-not-found':       'No existe una cuenta con ese email.',
+    'auth/wrong-password':       'Contraseña incorrecta.',
+    'auth/invalid-credential':   'Email o contraseña incorrectos.',
+    'auth/email-already-in-use': 'Ya existe una cuenta con ese email.',
+    'auth/weak-password':        'La contraseña debe tener al menos 6 caracteres.',
+    'auth/invalid-email':        'El email no es válido.',
+    'auth/too-many-requests':    'Demasiados intentos. Intentá más tarde.',
+    'auth/popup-closed-by-user': 'Se cerró el popup de Google.',
+    'auth/network-request-failed': 'Error de red. Verificá tu conexión.',
+  }
+  return map[code] || 'Ocurrió un error. Intentá de nuevo.'
+}

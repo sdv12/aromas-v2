@@ -1,54 +1,44 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { PRODUCTS } from '../data/products'
+import {
+  collection, doc,
+  onSnapshot, addDoc, updateDoc, deleteDoc,
+} from 'firebase/firestore'
+import { db } from '../config/firebase'
 
 const ProductsContext = createContext()
 
 export function ProductsProvider({ children }) {
-  const [products, setProducts] = useState(() => {
-    const saved = localStorage.getItem('aromascba_products')
-    return saved ? JSON.parse(saved) : PRODUCTS
-  })
+  const [products, setProducts] = useState([])
+  const [loading,  setLoading]  = useState(true)
 
-  // Simulates async load — replace setTimeout with real fetch in backend phase
-  const [loading, setLoading] = useState(true)
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 450)
-    return () => clearTimeout(t)
+    const unsub = onSnapshot(collection(db, 'products'), (snap) => {
+      setProducts(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+      setLoading(false)
+    })
+    return unsub
   }, [])
 
-  useEffect(() => {
-    localStorage.setItem('aromascba_products', JSON.stringify(products))
-  }, [products])
-
-  const addProduct = product => {
-    const newProduct = {
+  const addProduct = (product) =>
+    addDoc(collection(db, 'products'), {
       ...product,
-      id: Date.now(),
-      rating: product.rating || 4.5,
-      reviews: product.reviews || 0,
-      tags: product.tags || [],
-    }
-    setProducts(prev => [...prev, newProduct])
-  }
+      rating:    product.rating    ?? 4.5,
+      reviews:   product.reviews   ?? 0,
+      tags:      product.tags      ?? [],
+      createdAt: new Date().toISOString(),
+    })
 
-  const updateProduct = (id, updates) => {
-    setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p))
-  }
+  const updateProduct = (id, updates) =>
+    updateDoc(doc(db, 'products', id), updates)
 
-  const deleteProduct = id => {
-    setProducts(prev => prev.filter(p => p.id !== id))
-  }
-
-  const resetToDefault = () => {
-    setProducts(PRODUCTS)
-    localStorage.removeItem('aromascba_products')
-  }
+  const deleteProduct = (id) =>
+    deleteDoc(doc(db, 'products', id))
 
   const offers   = products.filter(p => p.isOffer)
   const featured = products.filter(p => p.isFeatured)
 
   return (
-    <ProductsContext.Provider value={{ products, loading, addProduct, updateProduct, deleteProduct, resetToDefault, offers, featured }}>
+    <ProductsContext.Provider value={{ products, loading, addProduct, updateProduct, deleteProduct, offers, featured }}>
       {children}
     </ProductsContext.Provider>
   )

@@ -1,44 +1,46 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
+import {
+  collection, doc, addDoc, updateDoc,
+  query, where, onSnapshot, orderBy,
+} from 'firebase/firestore'
+import { db } from '../config/firebase'
 import { useAuth } from './AuthContext'
 
 const OrdersContext = createContext()
 
 export function OrdersProvider({ children }) {
   const { user } = useAuth()
+  const [orders, setOrders] = useState([])
 
-  const [orders, setOrders] = useState(() => {
-    const saved = localStorage.getItem('aromascba_orders')
-    return saved ? JSON.parse(saved) : []
-  })
+  useEffect(() => {
+    if (!user) { setOrders([]); return }
+    const q = query(
+      collection(db, 'orders'),
+      where('userId', '==', user.uid),
+      orderBy('date', 'desc'),
+    )
+    const unsub = onSnapshot(q, (snap) => {
+      setOrders(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+    })
+    return unsub
+  }, [user])
 
-  const addOrder = (orderData) => {
-    const newOrder = {
-      id: `ORD-${Date.now()}`,
-      userId: user?.id,
-      date: new Date().toISOString(),
-      status: 'pendiente',
+  const addOrder = async (orderData) => {
+    const data = {
+      userId:    user.uid,
+      date:      new Date().toISOString(),
+      status:    'pendiente',
       ...orderData,
     }
-    setOrders(prev => {
-      const updated = [newOrder, ...prev]
-      localStorage.setItem('aromascba_orders', JSON.stringify(updated))
-      return updated
-    })
-    return newOrder
+    const ref = await addDoc(collection(db, 'orders'), data)
+    return { id: ref.id, ...data }
   }
 
-  const updateOrderStatus = (orderId, status) => {
-    setOrders(prev => {
-      const updated = prev.map(o => o.id === orderId ? { ...o, status } : o)
-      localStorage.setItem('aromascba_orders', JSON.stringify(updated))
-      return updated
-    })
-  }
-
-  const userOrders = orders.filter(o => o.userId === user?.id)
+  const updateOrderStatus = (orderId, status) =>
+    updateDoc(doc(db, 'orders', orderId), { status })
 
   return (
-    <OrdersContext.Provider value={{ orders: userOrders, addOrder, updateOrderStatus }}>
+    <OrdersContext.Provider value={{ orders, addOrder, updateOrderStatus }}>
       {children}
     </OrdersContext.Provider>
   )

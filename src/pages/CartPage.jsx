@@ -87,7 +87,7 @@ export default function CartPage() {
     ...extra,
   })
 
-  const handleWhatsApp = () => {
+  const handleWhatsApp = async () => {
     if (!user) { openLogin(); return }
     const msg = buildWhatsAppMessage(items, sub - discount, isWholesale)
     const emailBody = encodeURIComponent(
@@ -98,7 +98,7 @@ export default function CartPage() {
         }).join('\n')
       }\n\nTotal: $${total.toLocaleString('es-AR')}\n\n¡Nos pondremos en contacto pronto!\nAromas CBA`
     )
-    saveOrder()
+    await saveOrder()
     window.open(`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Pedido – Aromas CBA')}&body=${emailBody}`, '_blank')
     setTimeout(() => window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank'), 500)
     clearCart()
@@ -110,7 +110,7 @@ export default function CartPage() {
     setMpLoading(true)
     setMpError('')
     try {
-      const order = saveOrder()
+      const order = await saveOrder()
       const origin = window.location.origin
       const pref = await createPreference({
         items,
@@ -136,12 +136,12 @@ export default function CartPage() {
     }
   }
 
-  const handleTransferencia = () => {
+  const handleTransferencia = async () => {
     if (!user) { openLogin(); return }
     const msg = encodeURIComponent(
       `Hola! Quiero hacer un pedido por transferencia bancaria.\n\nTotal: $${total.toLocaleString('es-AR')}\n\n¿Me pasás el CBU/Alias?`
     )
-    saveOrder()
+    await saveOrder()
     clearCart()
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank')
     navigate('/mis-pedidos')

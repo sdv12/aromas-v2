@@ -3,41 +3,53 @@ import { X, Eye, EyeOff, Mail, Lock, User, Crown } from 'lucide-react'
 import { useAuth, ROLES } from '../../context/AuthContext'
 
 export default function AuthModal() {
-  const { authModal, setAuthModal, authTab, setAuthTab, login, loginWithGoogle, register } = useAuth()
+  const { authModal, setAuthModal, authTab, setAuthTab, login, loginWithGoogle, register, resetPassword } = useAuth()
 
-  const [loginData, setLoginData]       = useState({ email: '', password: '' })
+  const [loginData,    setLoginData]    = useState({ email: '', password: '' })
   const [registerData, setRegisterData] = useState({ name: '', email: '', password: '', role: ROLES.CLIENTE })
-  const [showPass, setShowPass]         = useState(false)
-  const [error, setError]               = useState('')
-  const [loading, setLoading]           = useState(false)
+  const [showPass,  setShowPass]  = useState(false)
+  const [error,     setError]     = useState('')
+  const [info,      setInfo]      = useState('')
+  const [loading,   setLoading]   = useState(false)
 
   if (!authModal) return null
 
   const handleLogin = async e => {
     e.preventDefault()
-    setError('')
+    setError(''); setInfo('')
     setLoading(true)
-    await new Promise(r => setTimeout(r, 400))
-    const res = login(loginData.email, loginData.password)
+    const res = await login(loginData.email, loginData.password)
     setLoading(false)
     if (res.error) setError(res.error)
   }
 
   const handleRegister = async e => {
     e.preventDefault()
-    setError('')
-    if (!registerData.name || !registerData.email) { setError('Completá todos los campos.'); return }
+    setError(''); setInfo('')
+    if (!registerData.name || !registerData.email || !registerData.password) {
+      setError('Completá todos los campos.'); return
+    }
     setLoading(true)
-    await new Promise(r => setTimeout(r, 400))
-    register(registerData.name, registerData.email, registerData.role)
+    const res = await register(registerData.name, registerData.email, registerData.password, registerData.role)
     setLoading(false)
+    if (res.error) setError(res.error)
   }
 
   const handleGoogle = async () => {
+    setError(''); setInfo('')
     setLoading(true)
-    await new Promise(r => setTimeout(r, 600))
-    loginWithGoogle()
+    const res = await loginWithGoogle()
     setLoading(false)
+    if (res?.error) setError(res.error)
+  }
+
+  const handleForgotPassword = async () => {
+    if (!loginData.email) { setError('Ingresá tu email para recuperar la contraseña.'); return }
+    setError(''); setLoading(true)
+    const res = await resetPassword(loginData.email)
+    setLoading(false)
+    if (res.error) setError(res.error)
+    else setInfo('Te enviamos un email para restablecer tu contraseña.')
   }
 
   return (
@@ -59,7 +71,7 @@ export default function AuthModal() {
             {['login', 'register'].map(tab => (
               <button
                 key={tab}
-                onClick={() => { setAuthTab(tab); setError('') }}
+                onClick={() => { setAuthTab(tab); setError(''); setInfo('') }}
                 className={`px-5 py-2 rounded-md text-sm font-semibold transition-all ${
                   authTab === tab
                     ? 'bg-white dark:bg-gray-700 text-primary-600 shadow'
@@ -98,8 +110,12 @@ export default function AuthModal() {
                   </button>
                 </div>
               </div>
-              <button type="button" className="text-xs text-primary-600 hover:underline">Olvidé mi contraseña</button>
+              <button type="button" onClick={handleForgotPassword}
+                className="text-xs text-primary-600 hover:underline">
+                Olvidé mi contraseña
+              </button>
               {error && <p className="text-sm text-red-600 bg-red-50 dark:bg-red-950 rounded-lg px-3 py-2">{error}</p>}
+              {info  && <p className="text-sm text-green-600 bg-green-50 dark:bg-green-950 rounded-lg px-3 py-2">{info}</p>}
               <button type="submit" disabled={loading} className="btn-primary w-full">
                 {loading ? 'Ingresando…' : 'Iniciar Sesión'}
               </button>
@@ -134,6 +150,18 @@ export default function AuthModal() {
                   <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input type="email" className="input pl-9" placeholder="tu@email.com"
                     value={registerData.email} onChange={e => setRegisterData(d => ({ ...d, email: e.target.value }))} required />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contraseña</label>
+                <div className="relative">
+                  <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input type={showPass ? 'text' : 'password'} className="input pl-9 pr-10" placeholder="Mínimo 6 caracteres"
+                    value={registerData.password} onChange={e => setRegisterData(d => ({ ...d, password: e.target.value }))} required />
+                  <button type="button" onClick={() => setShowPass(s => !s)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                    {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
                 </div>
               </div>
               <div>
@@ -178,11 +206,6 @@ export default function AuthModal() {
               <li key={i}>{i}</li>
             ))}
           </ul>
-          <div className="mt-8 p-3 bg-white/10 rounded-xl text-xs text-primary-100">
-            <strong className="text-white">Cuentas demo:</strong><br />
-            mayorista@test.com · 1234<br />
-            admin@aromascba.com · 1234
-          </div>
         </div>
       </div>
     </div>

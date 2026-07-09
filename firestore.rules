@@ -1,0 +1,43 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function userRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isAdmin() {
+      return isAuth() && userRole() == 'administrador';
+    }
+
+    function isEmployee() {
+      return isAuth() && userRole() in ['administrador', 'empleado'];
+    }
+
+    function isOwner(userId) {
+      return isAuth() && request.auth.uid == userId;
+    }
+
+    // Productos: lectura pública, escritura solo admin/empleado
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isEmployee();
+    }
+
+    // Usuarios: cada uno lee/edita el suyo, admin lee/edita todos
+    match /users/{userId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+    }
+
+    // Pedidos: usuario crea y lee los suyos, admin/empleado ve todos
+    match /orders/{orderId} {
+      allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
+      allow read, update: if isAuth() && resource.data.userId == request.auth.uid;
+      allow read, write: if isEmployee();
+    }
+  }
+}

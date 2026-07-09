@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Plus, Edit2, Trash2, X, Save, RefreshCw, Search,
-  Package, AlertTriangle, Star, Bell, Mail, Trash
+  Package, AlertTriangle, Star, Bell, Mail, Trash, Upload, Loader2
 } from 'lucide-react'
 import { useProducts }        from '../../context/ProductsContext'
 import { useAuth }            from '../../context/AuthContext'
 import { CATEGORIES, BRANDS } from '../../data/products'
+import { seedProducts, reseedProducts } from '../../utils/seedProducts'
 
 const EMPTY_PRODUCT = {
   name: '', brand: BRANDS[0], category: CATEGORIES[0].id,
@@ -16,21 +17,23 @@ const EMPTY_PRODUCT = {
 }
 
 export default function CatalogAdmin() {
-  const { products, addProduct, updateProduct, deleteProduct, resetToDefault } = useProducts()
+  const { products, addProduct, updateProduct, deleteProduct } = useProducts()
   const { isEmployee } = useAuth()
   const navigate = useNavigate()
 
-  const [activeTab, setActiveTab] = useState('catalog')
-  const [search,  setSearch]  = useState('')
-  const [modal,   setModal]   = useState(null)
-  const [confirm, setConfirm] = useState(null)
-  const [form,    setForm]    = useState(EMPTY_PRODUCT)
+  const [activeTab,    setActiveTab]    = useState('catalog')
+  const [search,       setSearch]       = useState('')
+  const [modal,        setModal]        = useState(null)
+  const [confirm,      setConfirm]      = useState(null)
+  const [form,         setForm]         = useState(EMPTY_PRODUCT)
   const [resetConfirm, setResetConfirm] = useState(false)
+  const [seedLoading,  setSeedLoading]  = useState(false)
+  const [seedMsg,      setSeedMsg]      = useState('')
 
-  // Stock alerts
-  const [alerts, setAlerts] = useState(() => {
-    return JSON.parse(localStorage.getItem('aromascba_stock_alerts') || '[]')
-  })
+  // Stock alerts (localStorage — migración a Firestore pendiente)
+  const [alerts, setAlerts] = useState(() =>
+    JSON.parse(localStorage.getItem('aromascba_stock_alerts') || '[]')
+  )
   const alertsByProduct = alerts.reduce((acc, a) => {
     if (!acc[a.productId]) acc[a.productId] = { productName: a.productName, emails: [] }
     if (!acc[a.productId].emails.includes(a.email)) acc[a.productId].emails.push(a.email)
@@ -44,6 +47,20 @@ export default function CatalogAdmin() {
   const clearAllAlerts = () => {
     localStorage.removeItem('aromascba_stock_alerts')
     setAlerts([])
+  }
+
+  const handleSeed = async (force = false) => {
+    setSeedLoading(true); setSeedMsg('')
+    try {
+      if (force) await reseedProducts()
+      else       await seedProducts()
+      setSeedMsg('Catálogo cargado correctamente.')
+    } catch (err) {
+      setSeedMsg(err.message || 'Error al cargar el catálogo.')
+    } finally {
+      setSeedLoading(false)
+      setTimeout(() => setSeedMsg(''), 4000)
+    }
   }
 
   if (!isEmployee) {
@@ -67,7 +84,7 @@ export default function CatalogAdmin() {
   const openEdit = p => { setForm({ ...p, tags: p.tags || [] }); setModal({ product: p }) }
   const closeModal = () => { setModal(null); setForm(EMPTY_PRODUCT) }
 
-  const handleSave = e => {
+  const handleSave = async e => {
     e.preventDefault()
     const data = {
       ...form,
@@ -80,15 +97,15 @@ export default function CatalogAdmin() {
       tags: typeof form.tags === 'string' ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : form.tags,
     }
     if (modal === 'add') {
-      addProduct(data)
+      await addProduct(data)
     } else {
-      updateProduct(modal.product.id, data)
+      await updateProduct(modal.product.id, data)
     }
     closeModal()
   }
 
-  const handleDelete = id => {
-    deleteProduct(id)
+  const handleDelete = async id => {
+    await deleteProduct(id)
     setConfirm(null)
   }
 
@@ -107,13 +124,29 @@ export default function CatalogAdmin() {
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{products.length} productos en total</p>
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setResetConfirm(true)}
-            className="btn-ghost text-sm border border-gray-200 dark:border-navy-700 flex items-center gap-1.5"
-          >
-            <RefreshCw size={14} /> Restaurar
-          </button>
+        <div className="flex flex-wrap gap-2">
+          {seedMsg && (
+            <span className={`text-xs px-3 py-2 rounded-lg ${seedMsg.includes('Error') ? 'bg-red-50 text-red-600 dark:bg-red-950' : 'bg-green-50 text-green-700 dark:bg-green-950'}`}>
+              {seedMsg}
+            </span>
+          )}
+          {products.length === 0 ? (
+            <button
+              onClick={() => handleSeed(false)}
+              disabled={seedLoading}
+              className="btn-primary text-sm flex items-center gap-1.5"
+            >
+              {seedLoading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+              Cargar catálogo inicial
+            </button>
+          ) : (
+            <button
+              onClick={() => setResetConfirm(true)}
+              className="btn-ghost text-sm border border-gray-200 dark:border-navy-700 flex items-center gap-1.5"
+            >
+              <RefreshCw size={14} /> Restaurar
+            </button>
+          )}
           <button onClick={openAdd} className="btn-primary flex items-center gap-1.5">
             <Plus size={16} /> Nuevo Producto
           </button>
@@ -479,7 +512,7 @@ export default function CatalogAdmin() {
             </p>
             <div className="flex gap-3">
               <button onClick={() => setResetConfirm(false)} className="btn-ghost flex-1 border border-gray-200 dark:border-navy-700">Cancelar</button>
-              <button onClick={() => { resetToDefault(); setResetConfirm(false) }}
+              <button onClick={() => { setResetConfirm(false); handleSeed(true) }}
                 className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-4 py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
                 <RefreshCw size={15} /> Restaurar
               </button>
