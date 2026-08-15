@@ -4,16 +4,53 @@ import { useAuth } from '../context/AuthContext'
 import { WHATSAPP_NUMBER, CONTACT_EMAIL } from '../config/contact'
 
 const BENEFITS = [
-  { icon: TrendingUp, title: 'Hasta 30% de descuento',    desc: 'Precios especiales para revendedores y compras por volumen.' },
-  { icon: Package,    title: 'Stock garantizado',          desc: 'Reservamos stock para nuestros clientes mayoristas.' },
-  { icon: Truck,      title: 'Envío prioritario',          desc: 'Despacho en 24 hs para pedidos mayoristas confirmados.' },
-  { icon: Users,      title: 'Asesor exclusivo',           desc: 'Atención personalizada por WhatsApp y email.' },
+  { icon: TrendingUp, title: 'Precios por volumen',    desc: 'Desde 24 unidades con precios especiales para revendedores.' },
+  { icon: Package,    title: 'Stock garantizado',       desc: 'Reservamos stock para nuestros clientes mayoristas.' },
+  { icon: Truck,      title: 'Envío prioritario',       desc: 'Despacho en 24 hs para pedidos mayoristas confirmados.' },
+  { icon: Users,      title: 'Asesor exclusivo',        desc: 'Atención personalizada por WhatsApp y email.' },
 ]
 
-const TIERS = [
-  { name: 'Minorista',  min: 5,   max: 19,  disc: 15, color: 'border-gray-300 dark:border-gray-700' },
-  { name: 'Mayorista',  min: 20,  max: 49,  disc: 22, color: 'border-primary-400' },
-  { name: 'Distribuidor', min: 50, max: null, disc: 30, color: 'border-yellow-400', featured: true },
+const PROMOS_WS = [
+  {
+    producto: 'Aromatizante Ambiente y Telas',
+    presentacion: '250 ml',
+    icon: '🌸',
+    uni24: 64320,
+    uni48: 124992,
+    featured: false,
+  },
+  {
+    producto: 'Difusor de Ambientes',
+    presentacion: '60 ml — con varillas',
+    icon: '🌿',
+    uni24: 62616,
+    uni48: 121680,
+    featured: false,
+  },
+  {
+    producto: 'Difusor Aromático para Auto',
+    presentacion: 'Con colgante de madera',
+    icon: '🚗',
+    uni24: 59232,
+    uni48: 115104,
+    featured: false,
+  },
+  {
+    producto: 'Desodorante Concentrado',
+    presentacion: '500 ml — ambientes y telas',
+    icon: '💧',
+    uni24: 77832,
+    uni48: 151248,
+    featured: true,
+  },
+  {
+    producto: 'Esencia para Humidificador',
+    presentacion: '60 ml — fórmula concentrada',
+    icon: '✨',
+    uni24: 71064,
+    uni48: 138069,
+    featured: false,
+  },
 ]
 
 export default function Wholesale() {
@@ -24,9 +61,9 @@ export default function Wholesale() {
       {/* Hero */}
       <div className="bg-gradient-to-br from-primary-700 to-primary-900 text-white py-16 px-4 text-center">
         <Crown size={48} className="mx-auto text-yellow-300 mb-4" />
-        <h1 className="text-4xl font-extrabold mb-3">Venta Mayorista</h1>
+        <h1 className="text-4xl font-extrabold mb-3">Venta Mayorista Aura</h1>
         <p className="text-primary-100 text-lg max-w-xl mx-auto mb-6">
-          Descuentos especiales para revendedores, distribuidores y empresas. Accedé a los mejores precios de fragancias en Córdoba.
+          Precios especiales desde 24 unidades para revendedores, distribuidores y empresas. Fragancias exclusivas con descuentos por volumen.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <a href={`https://wa.me/${WHATSAPP_NUMBER}?text=Hola%2C%20me%20interesa%20la%20venta%20mayorista.`} target="_blank" rel="noopener noreferrer"
@@ -63,32 +100,51 @@ export default function Wholesale() {
         </div>
       </section>
 
-      {/* Pricing Tiers */}
-      <section className="py-14">
-        <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-2">
-            Escalas de Descuento
-          </h2>
-          <p className="text-center text-gray-500 dark:text-gray-400 mb-10 text-sm">Los descuentos se aplican sobre el precio de lista</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {TIERS.map(tier => (
-              <div key={tier.name} className={`card p-6 border-2 ${tier.color} ${tier.featured ? 'relative shadow-xl' : ''}`}>
-                {tier.featured && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-yellow-400 text-gray-900 text-xs font-bold px-4 py-1 rounded-full">
-                    Más Elegido
+      {/* Promos por producto */}
+      <section className="py-14 bg-primary-900 dark:bg-navy-950">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="text-center mb-10">
+            <p className="text-accent-400 text-xs font-semibold tracking-[0.25em] uppercase mb-2">Precios Mayoristas</p>
+            <h2 className="text-2xl font-bold text-white mb-2">Promos por Producto</h2>
+            <p className="text-primary-300 text-sm">Elegí el producto y la cantidad — los precios bajan cuanto más pedís</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {PROMOS_WS.map(p => (
+              <div key={p.producto}
+                className={`rounded-2xl p-6 border flex flex-col gap-5 relative
+                  ${p.featured
+                    ? 'bg-accent-600/20 border-accent-500/50 shadow-xl'
+                    : 'bg-primary-800/50 border-primary-700/50'}`}>
+                {p.featured && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent-500 text-white text-xs font-bold px-4 py-1 rounded-full whitespace-nowrap">
+                    Más vendido
                   </div>
                 )}
-                <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-1">{tier.name}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                  {tier.max ? `${tier.min}–${tier.max} unidades` : `+${tier.min} unidades`}
-                </p>
-                <div className="text-4xl font-extrabold text-primary-600 dark:text-primary-400 mb-4">
-                  {tier.disc}% <span className="text-base font-normal text-gray-500">off</span>
+                <div>
+                  <span className="text-3xl">{p.icon}</span>
+                  <h3 className="font-bold text-white mt-2 leading-tight">{p.producto}</h3>
+                  <p className="text-primary-300 text-xs mt-0.5">{p.presentacion}</p>
                 </div>
-                <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                  {['Precios especiales','Facturación disponible','Stock reservado'].map(b => (
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl px-4 py-3">
+                    <div>
+                      <p className="text-accent-300 text-[10px] font-bold uppercase tracking-wider">24 unidades</p>
+                      <p className="text-white font-extrabold text-xl">${p.uni24.toLocaleString('es-AR')}</p>
+                    </div>
+                    <p className="text-primary-300 text-xs">${Math.round(p.uni24/24).toLocaleString('es-AR')}<br/><span className="text-[10px]">c/u</span></p>
+                  </div>
+                  <div className="flex items-center justify-between bg-accent-500/10 border border-accent-500/20 rounded-xl px-4 py-3">
+                    <div>
+                      <p className="text-accent-300 text-[10px] font-bold uppercase tracking-wider">48 unidades</p>
+                      <p className="text-white font-extrabold text-xl">${p.uni48.toLocaleString('es-AR')}</p>
+                    </div>
+                    <p className="text-primary-300 text-xs">${Math.round(p.uni48/48).toLocaleString('es-AR')}<br/><span className="text-[10px]">c/u</span></p>
+                  </div>
+                </div>
+                <ul className="space-y-1.5 text-sm text-primary-200">
+                  {['Stock reservado','Facturación disponible','Envío prioritario'].map(b => (
                     <li key={b} className="flex items-center gap-2">
-                      <CheckCircle size={15} className="text-green-500 shrink-0" /> {b}
+                      <CheckCircle size={13} className="text-accent-400 shrink-0" /> {b}
                     </li>
                   ))}
                 </ul>

@@ -10,30 +10,68 @@ import { WHATSAPP_NUMBER }   from '../config/contact'
 
 const SLIDES = [
   {
-    headline: 'Fragancias que\nTransforman tu Hogar',
-    sub: 'Difusores, velas y aceites esenciales de calidad premium para cada espacio.',
+    headline: 'Aromas que\nTransforman tu Ambiente',
+    sub: 'Aromatizantes, difusores y esencias de calidad premium. Fragancias exclusivas para cada espacio.',
     bg: 'https://images.unsplash.com/photo-1616137150093-74a0c8fd8f61?w=1400&h=600&fit=crop',
     cta: 'Ver Catálogo', ctaLink: '/catalogo',
   },
   {
-    headline: 'Venta Mayorista\nDisponible',
-    sub: 'Descuentos especiales para revendedores y empresas. Hasta 30% off en todos los productos.',
+    headline: 'Promo Mayorista\nDisponible',
+    sub: 'Precios especiales desde 24 unidades. Ideal para revendedores, comercios y empresas.',
     bg: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?w=1400&h=600&fit=crop',
-    cta: 'Solicitar Cotización', ctaLink: '/mayorista',
+    cta: 'Ver Promos', ctaLink: '/mayorista',
   },
   {
-    headline: 'Sets y Combos\nPerfectos para Regalar',
-    sub: 'Presentaciones especiales para fechas especiales. Embalaje regalo sin costo adicional.',
+    headline: 'Pequeño Detalle,\nGran Sensación',
+    sub: 'Difusores aromáticos para el auto, el hogar y la oficina. Fragancias que inspiran bienestar.',
     bg: 'https://images.unsplash.com/photo-1610878185620-4a35027a5b7a?w=1400&h=600&fit=crop',
-    cta: 'Ver Sets', ctaLink: '/catalogo?categoria=sets',
+    cta: 'Ver Productos', ctaLink: '/catalogo?categoria=auto',
   },
 ]
 
 const FEATURES = [
   { icon: Truck,      title: 'Envío a toda Córdoba',  desc: 'Entrega en 24–48 hs' },
-  { icon: Award,      title: 'Calidad Garantizada',   desc: 'Productos 100% naturales' },
-  { icon: Headphones, title: 'Atención Personalizada',desc: 'Lun–Sáb 9 a 18 hs' },
-  { icon: Package,    title: 'Stock Permanente',       desc: '+200 productos disponibles' },
+  { icon: Award,      title: 'Calidad Premium',        desc: 'Fragancias exclusivas' },
+  { icon: Headphones, title: 'Atención Personalizada', desc: 'Lun–Sáb 9 a 18 hs' },
+  { icon: Package,    title: 'Stock Permanente',        desc: '+200 productos disponibles' },
+]
+
+const PROMOS = [
+  {
+    producto: 'Aromatizante Ambiente y Telas',
+    presentacion: '250 ml',
+    icon: '🌸',
+    uni24: 64320,
+    uni48: 124992,
+  },
+  {
+    producto: 'Difusor de Ambientes',
+    presentacion: '60 ml — con varillas',
+    icon: '🌿',
+    uni24: 62616,
+    uni48: 121680,
+  },
+  {
+    producto: 'Difusor Aromático',
+    presentacion: 'Para auto — con colgante',
+    icon: '🚗',
+    uni24: 59232,
+    uni48: 115104,
+  },
+  {
+    producto: 'Desodorante Concentrado',
+    presentacion: '500 ml — ambientes y telas',
+    icon: '💧',
+    uni24: 77832,
+    uni48: 151248,
+  },
+  {
+    producto: 'Esencia para Humidificador',
+    presentacion: '60 ml — fórmula concentrada',
+    icon: '✨',
+    uni24: 71064,
+    uni48: 138069,
+  },
 ]
 
 export default function Home() {
@@ -131,8 +169,8 @@ export default function Home() {
       <section className="py-5 bg-gradient-to-r from-primary-50 to-blue-50 dark:from-navy-850 dark:to-navy-900 border-y border-primary-200 dark:border-navy-700">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-bold text-primary-700 dark:text-primary-400 uppercase tracking-wide mb-0.5">¡Venta Mayorista Disponible!</p>
-            <p className="text-gray-700 dark:text-blue-200 text-sm">Descuentos especiales para empresas y volumen.{' '}
+            <p className="text-sm font-bold text-primary-700 dark:text-accent-400 uppercase tracking-wide mb-0.5">¡Promos Mayoristas Disponibles!</p>
+            <p className="text-gray-700 dark:text-cream-300 text-sm">Desde 24 unidades con precios especiales.{' '}
               <Link to="/mayorista" className="text-primary-600 hover:underline font-medium">Consultar catálogo</Link>
             </p>
           </div>
@@ -181,6 +219,43 @@ export default function Home() {
         </section>
       )}
 
+      {/* Promos Mayoristas */}
+      <section className="py-14 bg-primary-900 dark:bg-navy-950">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-10">
+            <p className="text-accent-400 text-xs font-semibold tracking-[0.25em] uppercase mb-2">Venta Mayorista</p>
+            <h2 className="text-2xl font-bold text-white mb-2">Promos del Mes</h2>
+            <p className="text-primary-300 text-sm">Precios especiales por volumen — desde 24 unidades</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+            {PROMOS.map(p => (
+              <div key={p.producto} className="bg-primary-800/60 dark:bg-navy-900 border border-primary-700 dark:border-navy-700 rounded-2xl p-5 flex flex-col gap-4">
+                <div>
+                  <span className="text-2xl">{p.icon}</span>
+                  <p className="font-bold text-white text-sm mt-2 leading-tight">{p.producto}</p>
+                  <p className="text-primary-300 text-xs mt-0.5">{p.presentacion}</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between bg-accent-600/20 border border-accent-500/30 rounded-xl px-3 py-2">
+                    <span className="text-accent-300 text-xs font-bold">24 UNI</span>
+                    <span className="text-white font-extrabold text-sm">${p.uni24.toLocaleString('es-AR')}</span>
+                  </div>
+                  <div className="flex items-center justify-between bg-accent-500/20 border border-accent-400/30 rounded-xl px-3 py-2">
+                    <span className="text-accent-200 text-xs font-bold">48 UNI</span>
+                    <span className="text-white font-extrabold text-sm">${p.uni48.toLocaleString('es-AR')}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-8">
+            <Link to="/mayorista" className="inline-flex items-center gap-2 bg-accent-500 hover:bg-accent-600 text-white font-bold px-7 py-3 rounded-lg transition-colors">
+              Ver todas las promos <ArrowRight size={16} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Testimonials */}
       <section className="py-14 bg-primary-50 dark:bg-navy-900">
         <div className="max-w-7xl mx-auto px-4">
@@ -209,8 +284,8 @@ export default function Home() {
       {/* CTA */}
       <section className="py-16 bg-gradient-to-br from-primary-600 to-primary-800 text-white text-center">
         <div className="max-w-2xl mx-auto px-4">
-          <h2 className="text-3xl font-extrabold mb-4">¿Listo para transformar tus espacios?</h2>
-          <p className="text-primary-100 mb-8 text-lg">Explorá nuestro catálogo completo y encontrá la fragancia perfecta para cada momento.</p>
+          <h2 className="text-3xl font-extrabold mb-4">Aromas que transforman tu ambiente</h2>
+          <p className="text-primary-100 mb-8 text-lg">Explorá el catálogo completo de Aura y encontrá la fragancia perfecta para cada espacio.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link to="/catalogo" className="bg-white text-primary-700 font-bold px-7 py-3 rounded-lg hover:bg-primary-50 transition-colors inline-flex items-center gap-2">
               Explorar Catálogo <ArrowRight size={18} />

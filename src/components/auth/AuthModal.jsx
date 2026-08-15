@@ -85,7 +85,7 @@ export default function AuthModal() {
 
           <div className="flex items-center gap-2 mb-6">
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white font-bold text-lg">A</div>
-            <span className="font-bold text-xl text-gray-900 dark:text-white">Aromas <span className="text-primary-600">CBA</span></span>
+            <span className="font-bold text-xl text-gray-900 dark:text-white tracking-widest" style={{fontFamily:'Georgia,serif'}}>AURA</span>
           </div>
 
           {authTab === 'login' ? (

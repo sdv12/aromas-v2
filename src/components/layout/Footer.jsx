@@ -15,7 +15,7 @@ export default function Footer() {
               <LogoFull dark size={32} />
             </div>
             <p className="text-sm text-primary-200 leading-relaxed mb-4">
-              Fragancias y aromas para el hogar y la empresa. Venta mayorista y minorista en Córdoba, Argentina.
+              Aromatizantes, difusores y esencias premium para el hogar y la empresa. Venta mayorista y minorista en Córdoba, Argentina.
             </p>
             <div className="flex gap-3">
               <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"
@@ -67,11 +67,11 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Phone size={15} className="text-primary-300 shrink-0" />
-                <a href="tel:+5493516000000" className="hover:text-white transition-colors">+54 9 351 600-0000</a>
+                <a href={`tel:+${WHATSAPP_NUMBER}`} className="hover:text-white transition-colors">+{WHATSAPP_NUMBER}</a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail size={15} className="text-primary-300 shrink-0" />
-                <a href="mailto:hola@aromascba.com" className="hover:text-white transition-colors">hola@aromascba.com</a>
+                <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-white transition-colors">{CONTACT_EMAIL}</a>
               </li>
               <li className="flex items-start gap-2">
                 <Clock size={15} className="text-primary-300 shrink-0 mt-0.5" />
@@ -82,7 +82,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 pt-6 border-t border-primary-800 dark:border-navy-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-primary-300">
-          <span>© {new Date().getFullYear()} Aromas Córdoba. Todos los derechos reservados.</span>
+          <span>© {new Date().getFullYear()} Aura — Aromas Córdoba. Todos los derechos reservados.</span>
           <span>Hecho con ❤ en Córdoba, Argentina</span>
         </div>
       </div>

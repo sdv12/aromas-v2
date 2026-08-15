@@ -1,14 +1,14 @@
 export const CATEGORIES = [
-  { id: 'difusores',   label: 'Difusores',         icon: '🌿' },
-  { id: 'aceites',     label: 'Aceites Esenciales', icon: '💧' },
-  { id: 'velas',       label: 'Velas',              icon: '🕯️' },
-  { id: 'sahumerios',  label: 'Sahumerios',         icon: '✨' },
-  { id: 'hogar',       label: 'Fragancias Hogar',   icon: '🏡' },
-  { id: 'auto',        label: 'Auto',               icon: '🚗' },
-  { id: 'sets',        label: 'Sets & Combos',      icon: '🎁' },
+  { id: 'aromatizantes',  label: 'Aromatizantes',        icon: '🌸' },
+  { id: 'difusores',      label: 'Difusores de Ambiente', icon: '🌿' },
+  { id: 'auto',           label: 'Difusor Aromático',     icon: '🚗' },
+  { id: 'desodorantes',   label: 'Desodorantes Conc.',    icon: '💧' },
+  { id: 'humidificador',  label: 'Esencias Humidif.',     icon: '✨' },
+  { id: 'velas',          label: 'Velas',                 icon: '🕯️' },
+  { id: 'sets',           label: 'Sets & Promos',         icon: '🎁' },
 ]
 
-export const BRANDS = ['Aromas CBA', 'Zen Garden', 'Pure Essence', 'Casa Bella', 'Natural Home']
+export const BRANDS = ['Aura', 'Aura Premium', 'Aura Home']
 
 export const PRODUCTS = [
   // Difusores

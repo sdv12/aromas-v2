@@ -1,70 +1,61 @@
-/**
- * Logo Aromas Córdoba
- * Para usar el logo PNG real: copiá el archivo a /public/logo-mark.png
- * y cambiá <LogoMark> por <img src="/logo-mark.png" alt="" className={...} />
- */
+/* Aura brand logo — mark + wordmark */
 
-export function LogoMark({ size = 36, color = '#1285b5' }) {
-  const h = size * 1.18
+function LeafMark({ size = 28, color = '#1B2A6B' }) {
   return (
-    <svg
-      width={size}
-      height={h}
-      viewBox="0 0 50 59"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      {/* Outer mark — approximation of the Aromas Córdoba brand glyph */}
+    <svg width={size} height={size} viewBox="0 0 28 28" fill="none" aria-hidden="true">
       <path
+        d="M14 2C9 2 4 6.5 4 12c0 4 2.5 7.5 6 9.5L14 26l4-4.5c3.5-2 6-5.5 6-9.5C24 6.5 19 2 14 2z"
+        fill={color} opacity="0.15"
+      />
+      <path
+        d="M14 4C10 4 6 8 6 12c0 3.5 2 6.5 5 8.5L14 24l3-3.5c3-2 5-5 5-8.5C22 8 18 4 14 4z"
+        fill={color} opacity="0.3"
+      />
+      <path
+        d="M14 7C11 7 8.5 9.5 8.5 12.5c0 2.5 1.5 4.5 3.5 6L14 21l2-2.5c2-1.5 3.5-3.5 3.5-6C19.5 9.5 17 7 14 7z"
         fill={color}
-        d="M36 3 C24 0 6 10 2 24 C-1 36 3 50 13 55 C20 59 30 59 38 56 C46 52 50 46 50 38 L50 3 C44 1 40 3 36 3 Z"
       />
-      {/* Inner white teardrop (counter of the 'a') */}
-      <path
-        fill="white"
-        d="M24 16 C24 16 11 28 11 37 C11 46 17 52 25 52 C33 52 38 46 38 37 C38 28 24 16 24 16 Z"
-      />
+      <line x1="14" y1="12" x2="14" y2="21" stroke="white" strokeWidth="1" strokeLinecap="round"/>
     </svg>
   )
 }
 
-/** Full logo: mark + wordmark, horizontal layout */
+export function LogoMark({ size = 36, color = '#1B2A6B' }) {
+  return <LeafMark size={size} color={color} />
+}
+
 export function LogoFull({ dark = false, size = 36 }) {
-  const blue = dark ? '#7bbfe0' : '#1285b5'
+  const navy  = dark ? '#9ab8d8' : '#1B2A6B'
+  const gold  = '#c4973a'
   return (
     <span className="flex items-center gap-2.5 select-none">
-      <LogoMark size={size} color={blue} />
-      <span className="leading-tight">
-        <span className={`block text-[0.8rem] font-medium tracking-wide lowercase ${dark ? 'text-blue-200' : 'text-primary-600'}`}>
-          aromas
+      <LeafMark size={size} color={dark ? '#9ab8d8' : '#1B2A6B'} />
+      <span className="leading-none">
+        <span className="block font-bold tracking-[0.18em] uppercase text-[0.75rem]"
+          style={{ color: gold, fontFamily: 'Georgia, serif', letterSpacing: '0.18em' }}>
+          Aromas
         </span>
-        <span className={`block text-[1.1rem] font-bold leading-none tracking-tight ${dark ? 'text-blue-100' : 'text-primary-700'}`}>
-          Córdoba
+        <span className="block font-bold tracking-[0.25em] uppercase"
+          style={{ color: navy, fontSize: size * 0.55, fontFamily: 'Georgia, serif' }}>
+          AURA
         </span>
       </span>
     </span>
   )
 }
 
-/** Header variant: adapts to dark/light mode automatically */
 export default function LogoHeader() {
   return (
-    <span className="flex items-center gap-2.5 select-none">
-      {/* Light mode mark */}
-      <span className="dark:hidden">
-        <LogoMark size={34} color="#1285b5" />
-      </span>
-      {/* Dark mode mark */}
-      <span className="hidden dark:block">
-        <LogoMark size={34} color="#3d9cdc" />
-      </span>
-      <span className="leading-tight">
-        <span className="block text-[0.75rem] font-medium tracking-widest uppercase text-primary-500 dark:text-primary-400">
-          aromas
+    <span className="flex items-center gap-2 select-none">
+      <span className="dark:hidden"><LeafMark size={30} color="#1B2A6B" /></span>
+      <span className="hidden dark:block"><LeafMark size={30} color="#9ab8d8" /></span>
+      <span className="leading-none">
+        <span className="block text-[0.6rem] font-semibold tracking-[0.2em] uppercase text-accent-500">
+          Aromas
         </span>
-        <span className="block text-[1.05rem] font-bold leading-none text-primary-700 dark:text-blue-200">
-          Córdoba
+        <span className="block text-[1.05rem] font-bold tracking-[0.22em] uppercase text-primary-700 dark:text-cream-200"
+          style={{ fontFamily: 'Georgia, serif' }}>
+          AURA
         </span>
       </span>
     </span>

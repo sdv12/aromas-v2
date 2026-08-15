@@ -5,36 +5,53 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Brand blue — matches logo (#1285B5 range)
+        // Aura brand navy (#1B2A4A range)
         primary: {
-          50:  '#eff7fd',
-          100: '#d8edf8',
-          200: '#b0d9f2',
-          300: '#77bde9',
-          400: '#3d9cdc',
-          500: '#1a84c9',
-          600: '#1285b5',
-          700: '#0f6b93',
-          800: '#115879',
-          900: '#144a64',
-          950: '#0c3346',
+          50:  '#edf0f6',
+          100: '#d0d8e8',
+          200: '#a1b1d1',
+          300: '#728aba',
+          400: '#4363a3',
+          500: '#243c8c',
+          600: '#1B2A6B',
+          700: '#152155',
+          800: '#0F1840',
+          900: '#0A102B',
+          950: '#050918',
         },
-        // Deep navy — used for dark mode backgrounds
+        // Aura accent gold
+        accent: {
+          50:  '#fdf8ec',
+          100: '#f9edd0',
+          200: '#f2d9a1',
+          300: '#ebc572',
+          400: '#d4ac5a',
+          500: '#c4973a',
+          600: '#a07830',
+          700: '#7d5c25',
+          800: '#5a421a',
+          900: '#38280f',
+        },
+        // Warm cream palette (light mode backgrounds)
+        cream: {
+          50:  '#fdfaf5',
+          100: '#faf6ef',
+          200: '#f5edd8',
+          300: '#edd9b8',
+          400: '#e0c898',
+        },
+        // Deep navy — dark mode backgrounds
         navy: {
-          700: '#1a4570',
-          800: '#0f3050',
-          850: '#0d2840',
-          900: '#0a2038',
-          950: '#061428',
-        },
-        gold: {
-          400: '#fbbf24',
-          500: '#f59e0b',
-          600: '#d97706',
+          700: '#1a2f50',
+          800: '#102038',
+          850: '#0d1a2e',
+          900: '#091424',
+          950: '#05091A',
         },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+        serif: ['Georgia', 'Cambria', 'serif'],
       },
     },
   },
