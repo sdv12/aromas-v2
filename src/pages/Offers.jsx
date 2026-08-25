@@ -3,8 +3,10 @@ import { Tag, Clock, ArrowRight } from 'lucide-react'
 import { useProducts } from '../context/ProductsContext'
 import ProductCard     from '../components/products/ProductCard'
 import { useAuth }     from '../context/AuthContext'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 export default function Offers() {
+  usePageTitle('Ofertas Especiales')
   const { isWholesale } = useAuth()
   const { offers }      = useProducts()
 
@@ -41,7 +43,7 @@ export default function Offers() {
           </div>
         )}
 
-        <div className="mt-12 card p-8 bg-gradient-to-r from-primary-50 to-blue-50 dark:from-navy-850 dark:to-navy-900 border-primary-200 dark:border-navy-700 text-center">
+        <div className="mt-12 card p-8 bg-gradient-to-r from-cream-100 to-cream-50 dark:from-navy-850 dark:to-navy-900 border-cream-300 dark:border-navy-700 text-center">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">¿Comprás en cantidad?</h2>
           <p className="text-gray-600 dark:text-blue-200 mb-4 text-sm">
             Accedé a precios mayoristas con hasta 30% de descuento adicional sobre el precio de oferta.

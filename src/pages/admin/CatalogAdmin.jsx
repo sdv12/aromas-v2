@@ -1,13 +1,17 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Plus, Edit2, Trash2, X, Save, RefreshCw, Search,
-  Package, AlertTriangle, Star, Bell, Mail, Trash, Upload, Loader2
+  Package, AlertTriangle, Star, Bell, Mail, Trash, Upload, Loader2,
+  Users as UsersIcon, Shield, ChevronDown
 } from 'lucide-react'
+import { collection, getDocs, doc, updateDoc } from 'firebase/firestore'
+import { db } from '../../config/firebase'
 import { useProducts }        from '../../context/ProductsContext'
-import { useAuth }            from '../../context/AuthContext'
+import { useAuth, ROLES }     from '../../context/AuthContext'
 import { CATEGORIES, BRANDS } from '../../data/products'
 import { seedProducts, reseedProducts } from '../../utils/seedProducts'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 const EMPTY_PRODUCT = {
   name: '', brand: BRANDS[0], category: CATEGORIES[0].id,
@@ -16,9 +20,27 @@ const EMPTY_PRODUCT = {
   isFeatured: false, rating: 4.5, reviews: 0, tags: [],
 }
 
+const ROLE_OPTIONS = [
+  { value: ROLES.CLIENTE,       label: 'Cliente' },
+  { value: ROLES.MINORISTA,     label: 'Minorista' },
+  { value: ROLES.MAYORISTA,     label: 'Mayorista' },
+  { value: ROLES.EMPLEADO,      label: 'Empleado' },
+  { value: ROLES.ADMINISTRADOR, label: 'Administrador' },
+]
+
+const ROLE_COLORS = {
+  general:       'bg-gray-100 text-gray-600 dark:bg-navy-800 dark:text-gray-400',
+  cliente:       'bg-cream-100 text-primary-700 dark:bg-navy-800 dark:text-cream-300',
+  minorista:     'bg-cream-200 text-primary-700 dark:bg-navy-800 dark:text-cream-300',
+  mayorista:     'bg-accent-100 text-accent-700 dark:bg-navy-800 dark:text-accent-400',
+  empleado:      'bg-primary-100 text-primary-700 dark:bg-navy-800 dark:text-primary-300',
+  administrador: 'bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400',
+}
+
 export default function CatalogAdmin() {
+  usePageTitle('Panel Admin')
   const { products, addProduct, updateProduct, deleteProduct } = useProducts()
-  const { isEmployee } = useAuth()
+  const { isEmployee, isAdmin, user: currentUser } = useAuth()
   const navigate = useNavigate()
 
   const [activeTab,    setActiveTab]    = useState('catalog')
@@ -29,6 +51,44 @@ export default function CatalogAdmin() {
   const [resetConfirm, setResetConfirm] = useState(false)
   const [seedLoading,  setSeedLoading]  = useState(false)
   const [seedMsg,      setSeedMsg]      = useState('')
+
+  // ── Gestión de usuarios ──────────────────────────
+  const [users,        setUsers]        = useState([])
+  const [usersLoading, setUsersLoading] = useState(false)
+  const [usersError,   setUsersError]   = useState('')
+  const [roleUpdating, setRoleUpdating] = useState({}) // { uid: true }
+
+  const loadUsers = async () => {
+    setUsersLoading(true); setUsersError('')
+    try {
+      const snap = await getDocs(collection(db, 'users'))
+      const list = snap.docs.map(d => ({ uid: d.id, ...d.data() }))
+      list.sort((a, b) => (a.createdAt > b.createdAt ? -1 : 1))
+      setUsers(list)
+    } catch (err) {
+      setUsersError('Error al cargar usuarios. Verificá tu conexión.')
+    } finally {
+      setUsersLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (activeTab === 'users' && users.length === 0 && !usersLoading) {
+      loadUsers()
+    }
+  }, [activeTab]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleRoleChange = async (uid, newRole) => {
+    setRoleUpdating(s => ({ ...s, [uid]: true }))
+    try {
+      await updateDoc(doc(db, 'users', uid), { role: newRole })
+      setUsers(list => list.map(u => u.uid === uid ? { ...u, role: newRole } : u))
+    } catch {
+      alert('No se pudo actualizar el rol. Verificá tus permisos.')
+    } finally {
+      setRoleUpdating(s => ({ ...s, [uid]: false }))
+    }
+  }
 
   // Stock alerts (localStorage — migración a Firestore pendiente)
   const [alerts, setAlerts] = useState(() =>
@@ -154,10 +214,11 @@ export default function CatalogAdmin() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-primary-50 dark:bg-navy-800 p-1 rounded-lg w-fit mb-6">
+      <div className="flex gap-1 bg-primary-50 dark:bg-navy-800 p-1 rounded-lg w-fit mb-6 flex-wrap">
         {[
           { id: 'catalog', label: 'Catálogo',           Icon: Package },
-          { id: 'alerts',  label: `Alertas de stock${alerts.length > 0 ? ` (${alerts.length})` : ''}`, Icon: Bell },
+          { id: 'users',   label: `Usuarios${users.length > 0 ? ` (${users.length})` : ''}`, Icon: UsersIcon },
+          { id: 'alerts',  label: `Alertas${alerts.length > 0 ? ` (${alerts.length})` : ''}`, Icon: Bell },
         ].map(({ id, label, Icon }) => (
           <button
             key={id}
@@ -165,7 +226,7 @@ export default function CatalogAdmin() {
             className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium transition-all ${
               activeTab === id
                 ? 'bg-white dark:bg-navy-700 text-primary-600 shadow'
-                : 'text-gray-500 dark:text-blue-300 hover:text-gray-700 dark:hover:text-white'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white'
             }`}
           >
             <Icon size={14} /> {label}
@@ -173,7 +234,116 @@ export default function CatalogAdmin() {
         ))}
       </div>
 
-      {activeTab === 'alerts' ? (
+      {activeTab === 'users' ? (
+        /* ── Users panel ── */
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {usersLoading ? 'Cargando…' : usersError || `${users.length} usuario${users.length !== 1 ? 's' : ''} registrados`}
+            </p>
+            <button
+              onClick={loadUsers}
+              disabled={usersLoading}
+              className="text-xs text-primary-600 hover:underline flex items-center gap-1"
+            >
+              <RefreshCw size={12} className={usersLoading ? 'animate-spin' : ''} /> Actualizar
+            </button>
+          </div>
+
+          {usersError && (
+            <div className="card p-6 text-center text-red-500 text-sm mb-4">{usersError}</div>
+          )}
+
+          <div className="card overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-primary-50 dark:bg-navy-800 text-xs uppercase tracking-wide text-primary-700 dark:text-primary-300">
+                  <tr>
+                    <th className="px-4 py-3 text-left">Usuario</th>
+                    <th className="px-4 py-3 text-left hidden sm:table-cell">Email</th>
+                    <th className="px-4 py-3 text-left hidden md:table-cell">Registrado</th>
+                    <th className="px-4 py-3 text-center">Rol</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-cream-200 dark:divide-navy-800">
+                  {users.map(u => {
+                    const isSelf  = u.uid === currentUser?.uid
+                    const isAdminU = u.role === ROLES.ADMINISTRADOR
+                    const date = u.createdAt
+                      ? new Date(u.createdAt).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })
+                      : '—'
+                    return (
+                      <tr key={u.uid} className={`transition-colors ${isSelf ? 'bg-cream-50 dark:bg-navy-850/50' : 'hover:bg-cream-50/60 dark:hover:bg-navy-850/30'}`}>
+                        {/* Name + avatar */}
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-full bg-primary-100 dark:bg-navy-700 flex items-center justify-center shrink-0 text-sm font-bold text-primary-700 dark:text-primary-300 uppercase">
+                              {(u.name || u.email || '?')[0]}
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900 dark:text-white text-sm leading-tight">
+                                {u.name || '(sin nombre)'}
+                                {isSelf && <span className="ml-1.5 text-[10px] text-gray-400">(vos)</span>}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        {/* Email */}
+                        <td className="px-4 py-3 hidden sm:table-cell text-gray-500 dark:text-gray-400 text-xs">
+                          {u.email}
+                        </td>
+                        {/* Date */}
+                        <td className="px-4 py-3 hidden md:table-cell text-gray-400 text-xs">
+                          {date}
+                        </td>
+                        {/* Role */}
+                        <td className="px-4 py-3">
+                          {isSelf || !isAdmin ? (
+                            <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${ROLE_COLORS[u.role] || ROLE_COLORS.cliente}`}>
+                              {isAdminU && <Shield size={10} />}
+                              {ROLE_OPTIONS.find(r => r.value === u.role)?.label || u.role}
+                            </span>
+                          ) : (
+                            <div className="relative inline-block">
+                              <select
+                                value={u.role}
+                                disabled={roleUpdating[u.uid]}
+                                onChange={e => handleRoleChange(u.uid, e.target.value)}
+                                className={`text-xs font-semibold pl-2.5 pr-7 py-1 rounded-full border-0 cursor-pointer appearance-none focus:outline-none focus:ring-2 focus:ring-primary-400 transition-colors ${ROLE_COLORS[u.role] || ROLE_COLORS.cliente} ${roleUpdating[u.uid] ? 'opacity-60 cursor-wait' : ''}`}
+                              >
+                                {ROLE_OPTIONS.map(r => (
+                                  <option key={r.value} value={r.value}>{r.label}</option>
+                                ))}
+                              </select>
+                              <ChevronDown size={10} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none opacity-60" />
+                              {roleUpdating[u.uid] && (
+                                <Loader2 size={10} className="absolute right-2 top-1/2 -translate-y-1/2 animate-spin" />
+                              )}
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                  {!usersLoading && users.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="px-4 py-12 text-center text-gray-400 text-sm">
+                        No hay usuarios registrados aún.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {!isAdmin && (
+            <p className="text-xs text-gray-400 mt-3 text-center">
+              Solo el administrador puede cambiar roles de usuario.
+            </p>
+          )}
+        </div>
+      ) : activeTab === 'alerts' ? (
         /* ── Alerts panel ── */
         <div>
           <div className="flex items-center justify-between mb-4">

@@ -5,53 +5,55 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Aura brand navy (#1B2A4A range)
+        // ── Primary: navy. Anchor #273145
         primary: {
-          50:  '#edf0f6',
-          100: '#d0d8e8',
-          200: '#a1b1d1',
-          300: '#728aba',
-          400: '#4363a3',
-          500: '#243c8c',
-          600: '#1B2A6B',
-          700: '#152155',
-          800: '#0F1840',
-          900: '#0A102B',
-          950: '#050918',
+          50:  '#ecf0f8',
+          100: '#d4ddee',
+          200: '#a9bbdd',
+          300: '#7e99cc',
+          400: '#5377bb',
+          500: '#3a5aa8',
+          600: '#2e3d5a',   // feature strips, mid-dark sections
+          700: '#273145',   // ← CTA buttons, active states
+          800: '#1e2636',   // button hover
+          900: '#141c2a',   // footer, deepest dark
+          950: '#0a0e16',
         },
-        // Aura accent gold
+        // ── Accent: warm tan. Anchor #b6a183
         accent: {
-          50:  '#fdf8ec',
-          100: '#f9edd0',
-          200: '#f2d9a1',
-          300: '#ebc572',
-          400: '#d4ac5a',
-          500: '#c4973a',
-          600: '#a07830',
-          700: '#7d5c25',
-          800: '#5a421a',
-          900: '#38280f',
+          50:  '#faf7f3',
+          100: '#f2ece0',
+          200: '#e4d8c3',
+          300: '#d0bc9d',
+          400: '#c4ae92',
+          500: '#b6a183',   // ← prices, badges, dark-mode CTAs
+          600: '#9a8568',
+          700: '#7e6a53',
+          800: '#604f3e',
+          900: '#3e3429',
         },
-        // Warm cream palette (light mode backgrounds)
+        // ── Cream: warm tints. Used in sections, NOT as base background
         cream: {
-          50:  '#fdfaf5',
-          100: '#faf6ef',
-          200: '#f5edd8',
-          300: '#edd9b8',
-          400: '#e0c898',
+          50:  '#faf8f5',   // barely warm — input focus rings
+          100: '#f5f0e9',   // subtle section bg (testimonials, categories)
+          200: '#ede5d8',   // warm section bg (callouts, wholesale banner)
+          300: '#ded4c4',   // brand beige — borders, accent strips
+          400: '#cfc0ae',   // dividers, card borders
+          500: '#b6a183',   // ≡ accent-500
         },
-        // Deep navy — dark mode backgrounds
+        // ── Navy: dark-mode depth
         navy: {
-          700: '#1a2f50',
-          800: '#102038',
-          850: '#0d1a2e',
-          900: '#091424',
-          950: '#05091A',
+          700: '#273145',
+          800: '#1e2a3e',
+          850: '#192030',
+          900: '#141c2a',   // ← dark-mode page bg
+          950: '#0c1018',
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        serif: ['Georgia', 'Cambria', 'serif'],
+        sans:    ['Inter', 'system-ui', 'sans-serif'],
+        serif:   ['Cormorant Garamond', 'Georgia', 'Cambria', 'serif'],
+        display: ['Cormorant Garamond', 'Georgia', 'serif'],
       },
     },
   },

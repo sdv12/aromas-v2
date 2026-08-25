@@ -12,8 +12,8 @@ function AuthGate({ children }) {
   const { authLoading } = useAuth()
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-950">
-        <div className="w-8 h-8 rounded-full border-4 border-primary-200 border-t-primary-600 animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-navy-900">
+        <div className="w-8 h-8 rounded-full border-4 border-cream-400 border-t-primary-700 animate-spin" />
       </div>
     )
   }

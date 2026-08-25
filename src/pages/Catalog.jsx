@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { usePageTitle } from '../hooks/usePageTitle'
 import { Search, Grid3X3, LayoutList, Heart, ShoppingCart } from 'lucide-react'
 import { useProducts }        from '../context/ProductsContext'
 import ProductCard            from '../components/products/ProductCard'
@@ -63,6 +64,7 @@ function ListProductCard({ product, showWholesale }) {
 }
 
 export default function Catalog() {
+  usePageTitle('Catálogo de Productos')
   const [params]          = useSearchParams()
   const { isWholesale }   = useAuth()
   const { products }      = useProducts()

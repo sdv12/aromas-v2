@@ -1,4 +1,5 @@
 import { MapPin, Phone, Mail, Clock, Heart, Leaf, Award } from 'lucide-react'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 const TEAM = [
   { name: 'Valeria Moreno', role: 'Fundadora & Directora', img: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=120&h=120&fit=crop&crop=face' },
@@ -7,6 +8,7 @@ const TEAM = [
 ]
 
 export default function About() {
+  usePageTitle('Sobre Nosotros')
   return (
     <div>
       {/* Hero */}
@@ -21,7 +23,7 @@ export default function About() {
       </div>
 
       {/* Mission / Vision / Values */}
-      <section className="py-14 bg-gray-50 dark:bg-gray-900">
+      <section className="py-14 bg-cream-100 dark:bg-navy-900">
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
             { icon: Heart,  title: 'Nuestra Misión', color: 'text-red-500',     bg: 'bg-red-50 dark:bg-red-950',
@@ -66,7 +68,7 @@ export default function About() {
       </section>
 
       {/* Team */}
-      <section className="py-14 bg-gray-50 dark:bg-gray-900">
+      <section className="py-14 bg-cream-100 dark:bg-navy-900">
         <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-10">Nuestro Equipo</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">

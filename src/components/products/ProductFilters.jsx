@@ -14,7 +14,7 @@ export default function ProductFilters({ filters, onChange, onReset, isMobile })
   const Section = ({ title, children }) => {
     const [collapsed, setCollapsed] = useState(false)
     return (
-      <div className="border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
+      <div className="border-b border-cream-200 dark:border-navy-700 pb-4 mb-4">
         <button
           onClick={() => setCollapsed(s => !s)}
           className="flex items-center justify-between w-full text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
@@ -30,7 +30,7 @@ export default function ProductFilters({ filters, onChange, onReset, isMobile })
   const content = (
     <div className="space-y-0">
       {/* Mayorista toggle */}
-      <div className="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="mb-4 pb-4 border-b border-cream-200 dark:border-navy-700">
         <label className="flex items-center justify-between cursor-pointer">
           <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Modo Mayorista</span>
           <button
@@ -115,7 +115,7 @@ export default function ProductFilters({ filters, onChange, onReset, isMobile })
         </div>
       </Section>
 
-      <button onClick={onReset} className="w-full btn-ghost text-sm flex items-center justify-center gap-1.5 border border-gray-200 dark:border-gray-700">
+      <button onClick={onReset} className="w-full btn-ghost text-sm flex items-center justify-center gap-1.5 border border-cream-200 dark:border-navy-700">
         <X size={14} /> Limpiar filtros
       </button>
     </div>
@@ -133,10 +133,10 @@ export default function ProductFilters({ filters, onChange, onReset, isMobile })
         {open && (
           <div className="fixed inset-0 z-50 flex">
             <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
-            <div className="relative ml-auto w-80 max-w-full h-full bg-white dark:bg-gray-900 shadow-2xl p-5 overflow-y-auto">
+            <div className="relative ml-auto w-80 max-w-full h-full bg-white dark:bg-navy-900 shadow-2xl p-5 overflow-y-auto">
               <div className="flex items-center justify-between mb-5">
                 <h2 className="font-bold text-lg text-gray-900 dark:text-white">Filtros</h2>
-                <button onClick={() => setOpen(false)} className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+                <button onClick={() => setOpen(false)} className="p-1 rounded-full hover:bg-cream-100 dark:hover:bg-navy-800">
                   <X size={20} />
                 </button>
               </div>

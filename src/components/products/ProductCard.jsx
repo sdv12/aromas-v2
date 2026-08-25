@@ -93,7 +93,7 @@ export default function ProductCard({ product, showWholesale }) {
   return (
     <div className="product-card card group overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col">
       {/* Image */}
-      <Link to={`/producto/${product.id}`} className="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-800 block">
+      <Link to={`/producto/${product.id}`} className="relative aspect-square overflow-hidden bg-cream-100 dark:bg-navy-800 block">
         <img
           src={product.image}
           alt={product.name}
@@ -127,7 +127,7 @@ export default function ProductCard({ product, showWholesale }) {
           className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center shadow transition-all z-10
             ${isFavorite(product.id)
               ? 'bg-red-500 text-white'
-              : 'bg-white/90 dark:bg-gray-900/90 text-gray-400 hover:text-red-500'
+              : 'bg-white/90 dark:bg-navy-900/90 text-gray-400 hover:text-red-500'
             }`}
           aria-label="Favorito"
         >

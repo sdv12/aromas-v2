@@ -6,6 +6,7 @@ import { useProducts } from '../context/ProductsContext'
 import ProductCard     from '../components/products/ProductCard'
 import { useAuth }     from '../context/AuthContext'
 import { useRecentlyViewed } from '../hooks/useRecentlyViewed'
+import { usePageTitle }      from '../hooks/usePageTitle'
 import { WHATSAPP_NUMBER }   from '../config/contact'
 
 const SLIDES = [
@@ -75,6 +76,7 @@ const PROMOS = [
 ]
 
 export default function Home() {
+  usePageTitle(null)
   const [slide, setSlide]   = useState(0)
   const { isWholesale }     = useAuth()
   const { products, featured } = useProducts()
@@ -91,55 +93,65 @@ export default function Home() {
 
   return (
     <div>
-      {/* Hero Carousel */}
-      <section className="relative h-[520px] md:h-[600px] overflow-hidden">
+      {/* Hero — editorial, inspirado en el logo */}
+      <section className="relative h-[560px] md:h-[680px] overflow-hidden">
         {SLIDES.map((s, i) => (
           <div
             key={i}
-            className={`absolute inset-0 transition-opacity duration-700 ${i === slide ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+            className={`absolute inset-0 transition-opacity duration-1000 ${i === slide ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           >
-            <img src={s.bg} alt="" className="w-full h-full object-cover" />
-            <div className="hero-overlay absolute inset-0" />
+            <img src={s.bg} alt="" className="w-full h-full object-cover scale-105" style={{ filter: 'brightness(0.6)' }} />
+            {/* Gradient overlay más sofisticado */}
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(105deg, rgba(39,49,69,0.82) 0%, rgba(39,49,69,0.45) 55%, rgba(0,0,0,0.1) 100%)' }} />
             <div className="absolute inset-0 flex items-center">
-              <div className="max-w-7xl mx-auto px-6 sm:px-10">
-                <div className="max-w-xl text-white">
-                  <h1 className="text-4xl md:text-5xl font-extrabold leading-tight mb-4 drop-shadow-sm whitespace-pre-line">
+              <div className="max-w-7xl mx-auto px-8 sm:px-14">
+                <div className="max-w-lg text-white">
+                  {/* Eyebrow serif */}
+                  <p className="font-display text-accent-400 text-lg italic tracking-wide mb-3 opacity-90">
+                    Aromas Córdoba
+                  </p>
+                  <h1 className="font-display text-5xl md:text-6xl font-semibold leading-[1.1] mb-5 whitespace-pre-line drop-shadow-sm">
                     {s.headline}
                   </h1>
-                  <p className="text-lg text-white/90 mb-7">{s.sub}</p>
-                  <Link to={s.ctaLink} className="btn-primary inline-flex items-center gap-2 text-base shadow-lg">
-                    {s.cta} <ArrowRight size={18} />
+                  {/* Línea accent */}
+                  <div className="w-12 h-0.5 mb-5" style={{ backgroundColor: '#b6a183' }} />
+                  <p className="text-base text-white/85 mb-8 leading-relaxed font-light">{s.sub}</p>
+                  <Link to={s.ctaLink}
+                    className="inline-flex items-center gap-2.5 text-sm font-semibold tracking-wide uppercase
+                               border border-white/60 text-white px-7 py-3 rounded-full
+                               hover:bg-white hover:text-primary-700 transition-all duration-300">
+                    {s.cta} <ArrowRight size={15} />
                   </Link>
                 </div>
               </div>
             </div>
           </div>
         ))}
-        <button onClick={prev} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center transition-colors backdrop-blur-sm">
-          <ChevronLeft size={22} />
+        {/* Navegación discreta */}
+        <button onClick={prev} className="absolute left-5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full border border-white/40 text-white flex items-center justify-center hover:border-white/80 transition-colors">
+          <ChevronLeft size={18} />
         </button>
-        <button onClick={next} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center transition-colors backdrop-blur-sm">
-          <ChevronRight size={22} />
+        <button onClick={next} className="absolute right-5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full border border-white/40 text-white flex items-center justify-center hover:border-white/80 transition-colors">
+          <ChevronRight size={18} />
         </button>
-        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
+        {/* Dots elegantes */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
           {SLIDES.map((_, i) => (
             <button key={i} onClick={() => setSlide(i)}
-              className={`h-2 rounded-full transition-all duration-300 ${i === slide ? 'dot-active' : 'dot-inactive'}`} />
+              className={`rounded-full transition-all duration-500 ${i === slide ? 'w-6 h-1.5 bg-accent-400' : 'w-1.5 h-1.5 bg-white/40 hover:bg-white/70'}`} />
           ))}
         </div>
       </section>
 
-      {/* Features bar */}
-      <section className="bg-primary-600 text-white py-5">
+      {/* Features bar — navy elegante */}
+      <section className="bg-primary-700 dark:bg-navy-900 text-white py-5 border-b border-primary-800/50">
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-4">
           {FEATURES.map(({ icon: Icon, title, desc }) => (
             <div key={title} className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-                <Icon size={20} />
-              </div>
+              <Icon size={18} className="text-accent-400 shrink-0" />
               <div>
-                <p className="text-sm font-semibold">{title}</p>
-                <p className="text-xs text-primary-100">{desc}</p>
+                <p className="text-xs font-semibold tracking-wide">{title}</p>
+                <p className="text-xs text-white/60">{desc}</p>
               </div>
             </div>
           ))}
@@ -147,9 +159,12 @@ export default function Home() {
       </section>
 
       {/* Categories */}
-      <section className="py-14 bg-primary-50 dark:bg-navy-900">
+      <section className="py-16 bg-cream-100 dark:bg-navy-900">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-8">Comprar por Categoría</h2>
+          <div className="text-center mb-10">
+            <h2 className="font-display text-3xl md:text-4xl font-medium text-gray-900 dark:text-white">Explorar por Categoría</h2>
+            <div className="w-10 h-0.5 mx-auto mt-3" style={{ backgroundColor: '#b6a183' }} />
+          </div>
           <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 gap-3">
             {CATEGORIES.map(cat => (
               <Link
@@ -166,7 +181,7 @@ export default function Home() {
       </section>
 
       {/* Wholesale banner */}
-      <section className="py-5 bg-gradient-to-r from-primary-50 to-blue-50 dark:from-navy-850 dark:to-navy-900 border-y border-primary-200 dark:border-navy-700">
+      <section className="py-5 bg-cream-200 dark:from-navy-850 dark:to-navy-900 border-y border-cream-300 dark:border-navy-700">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
             <p className="text-sm font-bold text-primary-700 dark:text-accent-400 uppercase tracking-wide mb-0.5">¡Promos Mayoristas Disponibles!</p>
@@ -182,7 +197,7 @@ export default function Home() {
       <section className="py-14">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Productos Destacados</h2>
+            <h2 className="font-display text-3xl font-medium text-gray-900 dark:text-white">Productos Destacados</h2>
             <Link to="/catalogo" className="text-primary-600 hover:underline text-sm font-medium flex items-center gap-1">
               Ver todos <ArrowRight size={16} />
             </Link>
@@ -197,7 +212,7 @@ export default function Home() {
 
       {/* Recently Viewed */}
       {recentProducts.length > 0 && (
-        <section className="py-14 bg-gray-50 dark:bg-navy-900">
+        <section className="py-14 bg-cream-100 dark:bg-navy-900">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -224,7 +239,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-10">
             <p className="text-accent-400 text-xs font-semibold tracking-[0.25em] uppercase mb-2">Venta Mayorista</p>
-            <h2 className="text-2xl font-bold text-white mb-2">Promos del Mes</h2>
+            <h2 className="font-display text-3xl font-medium text-white mb-2">Promos del Mes</h2>
             <p className="text-primary-300 text-sm">Precios especiales por volumen — desde 24 unidades</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
@@ -257,7 +272,7 @@ export default function Home() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-14 bg-primary-50 dark:bg-navy-900">
+      <section className="py-14 bg-cream-100 dark:bg-navy-900">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-10">Lo que dicen nuestros clientes</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -284,10 +299,10 @@ export default function Home() {
       {/* CTA */}
       <section className="py-16 bg-gradient-to-br from-primary-600 to-primary-800 text-white text-center">
         <div className="max-w-2xl mx-auto px-4">
-          <h2 className="text-3xl font-extrabold mb-4">Aromas que transforman tu ambiente</h2>
-          <p className="text-primary-100 mb-8 text-lg">Explorá el catálogo completo de Aura y encontrá la fragancia perfecta para cada espacio.</p>
+          <h2 className="font-display text-4xl md:text-5xl font-medium mb-4">Aromas que transforman tu ambiente</h2>
+          <p className="text-primary-100 mb-8 text-base font-light leading-relaxed">Explorá el catálogo completo de Aura y encontrá la fragancia perfecta para cada espacio.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link to="/catalogo" className="bg-white text-primary-700 font-bold px-7 py-3 rounded-lg hover:bg-primary-50 transition-colors inline-flex items-center gap-2">
+            <Link to="/catalogo" className="bg-white text-primary-700 font-bold px-7 py-3 rounded-lg hover:bg-cream-100 transition-colors inline-flex items-center gap-2">
               Explorar Catálogo <ArrowRight size={18} />
             </Link>
             <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noopener noreferrer"

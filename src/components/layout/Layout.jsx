@@ -8,7 +8,7 @@ import { ToastProvider } from '../../context/ToastContext'
 export default function Layout({ children }) {
   return (
     <ToastProvider>
-      <div className="min-h-screen flex flex-col bg-white dark:bg-gray-950 transition-colors duration-300">
+      <div className="min-h-screen flex flex-col bg-white dark:bg-navy-900 transition-colors duration-300">
         <Header />
         <main className="flex-1 pt-16">
           {children}

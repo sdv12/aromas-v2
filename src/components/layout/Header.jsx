@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import { useTheme }          from '../../context/ThemeContext'
 import { useAuth, ROLES }    from '../../context/AuthContext'
+import { FEATURE_LOGIN }     from '../../config/features'
 import { useCart }           from '../../context/CartContext'
 import { useFavorites }      from '../../context/FavoritesContext'
 import LogoHeader            from '../ui/Logo'
@@ -58,7 +59,7 @@ export default function Header() {
   const isActive = to => location.pathname === to
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md border-b border-primary-100 dark:border-navy-800 shadow-sm">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-navy-900/95 backdrop-blur-md border-b border-cream-300 dark:border-navy-800 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
 
@@ -75,7 +76,7 @@ export default function Header() {
                 to={to}
                 className={`btn-ghost text-sm px-3 py-2 ${
                   isActive(to)
-                    ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-navy-800 font-semibold'
+                    ? 'text-primary-700 dark:text-accent-400 bg-cream-200 dark:bg-navy-800 font-semibold'
                     : ''
                 }`}
               >
@@ -86,7 +87,7 @@ export default function Header() {
               <Link
                 to="/admin/catalogo"
                 className={`btn-ghost text-sm px-3 py-2 flex items-center gap-1.5 ${
-                  location.pathname.startsWith('/admin') ? 'text-primary-600 bg-primary-50 dark:bg-navy-800 font-semibold' : ''
+                  location.pathname.startsWith('/admin') ? 'text-primary-700 bg-cream-200 dark:bg-navy-800 font-semibold' : ''
                 }`}
               >
                 <LayoutDashboard size={15} /> Admin
@@ -99,7 +100,7 @@ export default function Header() {
 
             {/* Search */}
             {searchOpen ? (
-              <div className="absolute left-0 right-0 top-0 h-16 px-4 flex items-center bg-white/98 dark:bg-navy-950/98 backdrop-blur-md z-10">
+              <div className="absolute left-0 right-0 top-0 h-16 px-4 flex items-center bg-white/95 dark:bg-navy-950/98 backdrop-blur-md z-10">
                 <div className="w-full max-w-2xl mx-auto">
                   <SearchAutocomplete onClose={() => setSearchOpen(false)} />
                 </div>
@@ -146,29 +147,29 @@ export default function Header() {
                   onClick={() => setUserDropdown(s => !s)}
                   className="flex items-center gap-2 btn-ghost px-3 py-2 rounded-full"
                 >
-                  <div className={`w-7 h-7 rounded-full bg-primary-100 dark:bg-navy-800 flex items-center justify-center ${roleInfo?.color}`}>
+                  <div className={`w-7 h-7 rounded-full bg-cream-200 dark:bg-navy-800 flex items-center justify-center ${roleInfo?.color}`}>
                     <RoleIcon size={15} />
                   </div>
                   <span className="text-sm font-medium hidden sm:block max-w-[100px] truncate">{user.name}</span>
                   <ChevronDown size={14} className={`transition-transform ${userDropdown ? 'rotate-180' : ''}`} />
                 </button>
                 {userDropdown && (
-                  <div className="absolute right-0 top-12 w-52 bg-white dark:bg-navy-900 rounded-xl shadow-2xl border border-primary-100 dark:border-navy-700 py-1 z-10">
-                    <div className="px-4 py-2 border-b border-primary-50 dark:border-navy-800">
+                  <div className="absolute right-0 top-12 w-52 bg-white dark:bg-navy-800 rounded-xl shadow-2xl border border-cream-300 dark:border-navy-700 py-1 z-10">
+                    <div className="px-4 py-2 border-b border-cream-200 dark:border-navy-850">
                       <p className="text-sm font-semibold text-gray-900 dark:text-blue-100 truncate">{user.name}</p>
                       <p className={`text-xs font-medium ${roleInfo?.color}`}>{roleInfo?.label}</p>
                     </div>
                     <Link to="/mis-pedidos" onClick={() => setUserDropdown(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-blue-200 hover:bg-primary-50 dark:hover:bg-navy-800 transition-colors">
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-blue-200 hover:bg-cream-200 dark:hover:bg-navy-700 transition-colors">
                       <ClipboardList size={15} /> Mis Pedidos
                     </Link>
                     <Link to="/catalogo?tab=favoritos" onClick={() => setUserDropdown(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-blue-200 hover:bg-primary-50 dark:hover:bg-navy-800 transition-colors">
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-blue-200 hover:bg-cream-200 dark:hover:bg-navy-700 transition-colors">
                       <Heart size={15} /> Favoritos
                     </Link>
                     {isEmployee && (
                       <Link to="/admin/catalogo" onClick={() => setUserDropdown(false)}
-                        className="flex items-center gap-2 px-4 py-2 text-sm text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-navy-800 transition-colors font-semibold">
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-primary-600 dark:text-primary-400 hover:bg-cream-200 dark:hover:bg-navy-700 transition-colors font-semibold">
                         <LayoutDashboard size={15} /> Panel Admin
                       </Link>
                     )}
@@ -179,11 +180,11 @@ export default function Header() {
                   </div>
                 )}
               </div>
-            ) : (
+            ) : FEATURE_LOGIN ? (
               <button onClick={openLogin} className="btn-primary text-sm hidden sm:flex items-center gap-1.5">
                 <User size={16} /> Ingresar
               </button>
-            )}
+            ) : null}
 
             {/* Hamburger */}
             <button
@@ -199,13 +200,13 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {mobileOpen && (
-        <div className="md:hidden bg-white dark:bg-navy-950 border-t border-primary-100 dark:border-navy-800 shadow-lg">
+        <div className="md:hidden bg-white dark:bg-navy-900 border-t border-cream-300 dark:border-navy-800 shadow-lg">
           <nav className="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-1">
             {NAV_LINKS.map(({ to, label }) => (
               <Link
                 key={to}
                 to={to}
-                className={`btn-ghost text-sm justify-start ${isActive(to) ? 'text-primary-600 bg-primary-50 dark:bg-navy-800 font-semibold' : ''}`}
+                className={`btn-ghost text-sm justify-start ${isActive(to) ? 'text-primary-700 bg-cream-200 dark:bg-navy-800 font-semibold' : ''}`}
               >
                 {label}
               </Link>
@@ -215,7 +216,7 @@ export default function Header() {
                 <LayoutDashboard size={15} /> Panel Admin
               </Link>
             )}
-            {!user && (
+            {!user && FEATURE_LOGIN && (
               <button onClick={() => { openLogin(); setMobileOpen(false) }} className="btn-primary mt-2 text-sm">
                 Ingresar / Registrarse
               </button>

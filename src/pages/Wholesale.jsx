@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Crown, CheckCircle, Phone, Mail, ArrowRight, Package, TrendingUp, Users, Truck } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { usePageTitle } from '../hooks/usePageTitle'
 import { WHATSAPP_NUMBER, CONTACT_EMAIL } from '../config/contact'
 
 const BENEFITS = [
@@ -54,6 +55,7 @@ const PROMOS_WS = [
 ]
 
 export default function Wholesale() {
+  usePageTitle('Venta Mayorista')
   const { user, openSignup } = useAuth()
 
   return (
@@ -81,7 +83,7 @@ export default function Wholesale() {
       </div>
 
       {/* Benefits */}
-      <section className="py-14 bg-gray-50 dark:bg-gray-900">
+      <section className="py-14 bg-cream-100 dark:bg-navy-900">
         <div className="max-w-5xl mx-auto px-4">
           <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-10">
             Beneficios del Programa Mayorista
@@ -155,7 +157,7 @@ export default function Wholesale() {
       </section>
 
       {/* Contact Form */}
-      <section className="py-14 bg-gray-50 dark:bg-gray-900">
+      <section className="py-14 bg-cream-100 dark:bg-navy-900">
         <div className="max-w-2xl mx-auto px-4">
           <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-8">Solicitar Cotización</h2>
           <div className="card p-8">

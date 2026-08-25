@@ -8,10 +8,11 @@ import CartPage      from './pages/CartPage'
 import Offers        from './pages/Offers'
 import Wholesale     from './pages/Wholesale'
 import About         from './pages/About'
-import CatalogAdmin  from './pages/admin/CatalogAdmin'
-import ProductDetail from './pages/ProductDetail'
+import CatalogAdmin    from './pages/admin/CatalogAdmin'
+import ProductDetail  from './pages/ProductDetail'
 import OrderHistory   from './pages/OrderHistory'
 import PaymentResult  from './pages/PaymentResult'
+import DigitalCatalog from './pages/DigitalCatalog'
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
             <Route path="/mis-pedidos"     element={<OrderHistory />} />
             <Route path="/pago/resultado"  element={<PaymentResult />} />
             <Route path="/admin/catalogo"  element={<CatalogAdmin />} />
+            <Route path="/catalogo-digital" element={<DigitalCatalog />} />
             <Route path="*"               element={<NotFound />} />
           </Routes>
         </Layout>

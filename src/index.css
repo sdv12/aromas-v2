@@ -2,133 +2,228 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Base ──────────────────────────────────────────────── */
+/* ─── Base ────────────────────────────────────────────────── */
 @layer base {
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
     @apply font-sans antialiased transition-colors duration-300;
-    background-color: #faf6ef;
-    color: #1a1a2e;
+    background-color: #ffffff;
+    color: #1c1916;
+  }
+
+  /* Tipografía display — hereda elegancia del logo Aura */
+  .font-display, h1.display, h2.display {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    letter-spacing: -0.01em;
   }
 }
 
-/* ─── Components ─────────────────────────────────────────── */
+/* ─── Components ──────────────────────────────────────────── */
 @layer components {
+  /* Buttons — navy CTA (light mode) */
   .btn-primary {
-    @apply bg-primary-700 hover:bg-primary-800 text-white font-semibold px-5 py-2.5 rounded-lg
-           transition-all duration-200 active:scale-95 focus:outline-none focus:ring-2
-           focus:ring-primary-500 focus:ring-offset-2;
+    @apply font-semibold px-5 py-2.5 rounded-lg transition-all duration-200
+           active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    background-color: #273145;
+    color: #ffffff;
+    --tw-ring-color: #273145;
   }
+  .btn-primary:hover { background-color: #1e2636; }
+
   .btn-outline {
-    @apply border-2 border-primary-700 text-primary-700 hover:bg-primary-700 hover:text-white
-           font-semibold px-5 py-2.5 rounded-lg transition-all duration-200 active:scale-95
-           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    @apply font-semibold px-5 py-2.5 rounded-lg transition-all duration-200
+           active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    border: 2px solid #273145;
+    color: #273145;
+    --tw-ring-color: #273145;
   }
+  .btn-outline:hover { background-color: #273145; color: #ffffff; }
+
   .btn-ghost {
-    @apply text-gray-600 hover:text-primary-700 hover:bg-cream-200 font-medium px-4 py-2
-           rounded-lg transition-all duration-200;
+    @apply font-medium px-4 py-2 rounded-lg transition-all duration-200;
+    color: #5a5248;
   }
+  .btn-ghost:hover {
+    background-color: #f5f0e9;
+    color: #273145;
+  }
+
+  /* Cards — white surfaces */
   .card {
-    @apply bg-white rounded-2xl shadow-sm border border-cream-300 transition-all duration-300;
+    @apply rounded-2xl shadow-sm transition-all duration-300;
+    background-color: #ffffff;
+    border: 1px solid #ede5d8;
   }
+
+  /* Inputs — white, warm border */
   .input {
-    @apply w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-white text-gray-900
-           placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500
-           focus:border-transparent transition-all duration-200;
+    @apply w-full rounded-lg px-4 py-2.5
+           focus:outline-none focus:ring-2 focus:ring-offset-1
+           transition-all duration-200;
+    background-color: #ffffff;
+    border: 1px solid #d8cfc5;
+    color: #1c1916;
+    --tw-ring-color: #273145;
   }
+  .input::placeholder { color: #a89e94; }
+
+  /* Badges */
   .badge-retail {
-    @apply text-xs font-semibold bg-primary-100 text-primary-700 px-2 py-0.5 rounded-full;
+    @apply text-xs font-semibold px-2 py-0.5 rounded-full;
+    background-color: #f5f0e9;
+    color: #273145;
   }
   .badge-wholesale {
-    @apply text-xs font-semibold bg-accent-500 text-white px-2 py-0.5 rounded-full;
+    @apply text-xs font-semibold px-2 py-0.5 rounded-full;
+    background-color: #273145;
+    color: #ffffff;
   }
   .badge-offer {
     @apply text-xs font-bold bg-red-500 text-white px-2 py-0.5 rounded-full;
   }
 }
 
-/* ─── Dark mode ────────────────────────────────────────────── */
+/* ─── Light mode overrides ────────────────────────────────── */
+/* bg-white: stays white — no override */
+
+/* Primary-50 → very light warm (hover states, active tabs) */
+.bg-primary-50       { background-color: #f5f0e9 !important; }
+.bg-primary-100      { background-color: #ede5d8 !important; }
+
+/* Gray → warm remapping */
+.bg-gray-50          { background-color: #f5f0e9 !important; }
+.bg-gray-100         { background-color: #ede5d8 !important; }
+
+/* Hover states */
+.hover\:bg-primary-50:hover   { background-color: #f5f0e9 !important; }
+.hover\:bg-primary-100:hover  { background-color: #ede5d8 !important; }
+.hover\:bg-gray-50:hover      { background-color: #f5f0e9 !important; }
+.hover\:bg-gray-100:hover     { background-color: #ede5d8 !important; }
+
+/* ─── Dark mode ───────────────────────────────────────────── */
 .dark body {
-  background-color: #05091A;
-  color: #e8e4dc;
+  background-color: #141c2a;
+  color: #ede7dc;
 }
-.dark .btn-ghost {
-  color: #c4b99a;
+
+/* Dark: CTAs flip to warm tan */
+.dark .btn-primary {
+  background-color: #b6a183;
+  color: #141c2a;
 }
+.dark .btn-primary:hover { background-color: #c4ae92; }
+
+.dark .btn-outline {
+  border-color: #b6a183;
+  color: #b6a183;
+}
+.dark .btn-outline:hover {
+  background-color: #b6a183;
+  color: #141c2a;
+}
+
+.dark .btn-ghost { color: #c4ae92; }
 .dark .btn-ghost:hover {
-  background-color: #102038;
-  color: #d4c9aa;
+  background-color: #1e2a3e;
+  color: #ede7dc;
 }
+
+/* Dark: surfaces */
 .dark .card {
-  background-color: #091424;
-  border-color: #1a2f50;
+  background-color: #1e2a3e;
+  border-color: #2e3d5a;
 }
 .dark .input {
-  background-color: #102038;
-  border-color: #1a2f50;
-  color: #e8e4dc;
+  background-color: #141c2a;
+  border-color: #2e3d5a;
+  color: #ede7dc;
 }
-.dark .input::placeholder {
-  color: #5a7a9a;
-}
+.dark .input::placeholder { color: #5a7a9a; }
+
 .dark .badge-retail {
-  background-color: #102038;
-  color: #9ab8d8;
+  background-color: #1e2a3e;
+  color: #c4ae92;
 }
-.dark .bg-gray-50  { background-color: #091424 !important; }
-.dark .bg-gray-100 { background-color: #0d1a2e !important; }
-.dark .bg-gray-900 { background-color: #091424 !important; }
-.dark .bg-gray-950 { background-color: #05091A !important; }
-.dark .bg-white    { background-color: #091424 !important; }
+.dark .badge-wholesale {
+  background-color: #b6a183;
+  color: #141c2a;
+}
+
+/* Dark: bg overrides */
+.dark .bg-white      { background-color: #1e2a3e !important; }
+.dark .bg-primary-50 { background-color: #1e2a3e !important; }
+.dark .bg-primary-100{ background-color: #1e2a3e !important; }
+.dark .bg-gray-50    { background-color: #192030 !important; }
+.dark .bg-gray-100   { background-color: #1e2a3e !important; }
+.dark .bg-gray-900   { background-color: #141c2a !important; }
+.dark .bg-gray-950   { background-color: #0c1018 !important; }
+
+.dark .hover\:bg-primary-50:hover  { background-color: #273145 !important; }
+.dark .hover\:bg-primary-100:hover { background-color: #273145 !important; }
+.dark .hover\:bg-gray-50:hover     { background-color: #1e2a3e !important; }
+.dark .hover\:bg-gray-100:hover    { background-color: #1e2a3e !important; }
+
+/* Dark: borders */
 .dark .border-gray-100,
-.dark .border-gray-200 { border-color: #1a2f50 !important; }
+.dark .border-gray-200 { border-color: #2e3d5a !important; }
 .dark .border-gray-700,
-.dark .border-gray-800 { border-color: #102038 !important; }
-.dark .text-gray-400 { color: #7a9ab8; }
-.dark .text-gray-500 { color: #6a8aa8; }
-.dark .text-gray-600 { color: #9ab8d4; }
-.dark .text-gray-700 { color: #b8cee0; }
-.dark .text-gray-900 { color: #e8e4dc; }
-.dark .text-gray-300 { color: #c4b99a; }
+.dark .border-gray-800 { border-color: #1e2a3e !important; }
+.dark .border-primary-50  { border-color: #1e2a3e !important; }
+.dark .border-primary-100 { border-color: #2e3d5a !important; }
+
+/* Dark: text */
+.dark .text-gray-900 { color: #ede7dc; }
+.dark .text-gray-700 { color: #cfc0ae; }
+.dark .text-gray-600 { color: #b6a183; }
+.dark .text-gray-500 { color: #8a9ab4; }
+.dark .text-gray-400 { color: #7a8fa8; }
+.dark .text-gray-300 { color: #c4ae92; }
+
+/* Fix legacy dark:text-blue-* usado en todo el codebase */
+.dark .dark\:text-blue-100 { color: #ede7dc !important; }
+.dark .dark\:text-blue-200 { color: #cfc0ae !important; }
+.dark .dark\:text-blue-300 { color: #b6a183 !important; }
+
 .dark select {
-  background-color: #102038;
-  border-color: #1a2f50;
-  color: #e8e4dc;
+  background-color: #141c2a;
+  border-color: #2e3d5a;
+  color: #ede7dc;
 }
 
-/* ─── Scrollbar ──────────────────────────────────────────── */
-::-webkit-scrollbar       { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: #f5edd8; }
-::-webkit-scrollbar-thumb { background: #1B2A6B; border-radius: 9999px; }
-.dark ::-webkit-scrollbar-track { background: #091424; }
+/* ─── Scrollbar ────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 5px; height: 5px; }
+::-webkit-scrollbar-track  { background: #f5f0e9; }
+::-webkit-scrollbar-thumb  { background: #cfc0ae; border-radius: 9999px; }
+.dark ::-webkit-scrollbar-track { background: #1e2a3e; }
+.dark ::-webkit-scrollbar-thumb { background: #b6a183; }
 
-/* ─── Hero overlay ───────────────────────────────────────── */
+/* ─── Hero overlay ─────────────────────────────────────────── */
 .hero-overlay {
   background: linear-gradient(
     135deg,
-    rgba(10,16,43,0.90) 0%,
-    rgba(27,42,74,0.55) 60%,
+    rgba(20,28,42,0.88) 0%,
+    rgba(39,49,69,0.50) 60%,
     transparent 100%
   );
 }
 
-/* ─── WhatsApp pulse ─────────────────────────────────────── */
+/* ─── WhatsApp pulse ──────────────────────────────────────── */
 @keyframes pulse-wa {
-  0%, 100% { box-shadow: 0 0 0 0   rgba(37,211,102,0.45); }
+  0%, 100% { box-shadow: 0 0 0 0    rgba(37,211,102,0.45); }
   50%       { box-shadow: 0 0 0 12px rgba(37,211,102,0);   }
 }
 .whatsapp-pulse { animation: pulse-wa 2s infinite; }
 
-/* ─── Product card hover ─────────────────────────────────── */
+/* ─── Product card actions ────────────────────────────────── */
 .product-card:hover .product-actions { opacity: 1; transform: translateY(0); }
 .product-actions { opacity: 0; transform: translateY(8px); transition: all 0.25s ease; }
 
-/* ─── Carousel dots ──────────────────────────────────────── */
-.dot-active   { background-color: #c4973a; width: 1.5rem; }
-.dot-inactive { background-color: rgba(255,255,255,0.5); width: 0.5rem; }
+/* ─── Carousel dots ───────────────────────────────────────── */
+.dot-active   { background-color: #b6a183; width: 1.5rem; }
+.dot-inactive { background-color: rgba(255,255,255,0.45); width: 0.5rem; }
 
-/* ─── Toast slide-in ─────────────────────────────────────── */
+/* ─── Toast slide-in ──────────────────────────────────────── */
 @keyframes toast-in {
   from { opacity: 0; transform: translateX(110%); }
   to   { opacity: 1; transform: translateX(0); }

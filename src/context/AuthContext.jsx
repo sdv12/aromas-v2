@@ -2,31 +2,29 @@ import { createContext, useContext, useState, useEffect } from 'react'
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
   signOut,
   onAuthStateChanged,
   sendPasswordResetEmail,
 } from 'firebase/auth'
-import { doc, setDoc, getDoc, onSnapshot } from 'firebase/firestore'
+import { doc, setDoc, onSnapshot } from 'firebase/firestore'
 import { auth, db } from '../config/firebase'
+import { FEATURE_LOGIN } from '../config/features'
 
 export const ROLES = {
-  GENERAL:       'general',
-  CLIENTE:       'cliente',
-  MINORISTA:     'minorista',
-  MAYORISTA:     'mayorista',
-  EMPLEADO:      'empleado',
-  ADMINISTRADOR: 'administrador',
+  CLIENTE:       'cliente',       // cliente final (default al registrarse)
+  MINORISTA:     'minorista',     // comprador retail con cuenta
+  MAYORISTA:     'mayorista',     // comprador mayorista — ve precios especiales
+  DISTRIBUIDOR:  'distribuidor',  // distribuidor — precios y productos exclusivos
+  ADMINISTRADOR: 'administrador', // acceso total
 }
 
 const AuthContext = createContext()
 
 export function AuthProvider({ children }) {
-  const [user, setUser]           = useState(null)
+  const [user, setUser]               = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
-  const [authModal, setAuthModal] = useState(false)
-  const [authTab, setAuthTab]     = useState('login')
+  const [authModal, setAuthModal]     = useState(false)
+  const [authTab, setAuthTab]         = useState('login')
 
   useEffect(() => {
     let unsubProfile = null
@@ -79,27 +77,6 @@ export function AuthProvider({ children }) {
     }
   }
 
-  const loginWithGoogle = async () => {
-    try {
-      const cred = await signInWithPopup(auth, new GoogleAuthProvider())
-      const profileRef = doc(db, 'users', cred.user.uid)
-      const snap = await getDoc(profileRef)
-      if (!snap.exists()) {
-        await setDoc(profileRef, {
-          name:      cred.user.displayName || cred.user.email,
-          email:     cred.user.email,
-          role:      ROLES.CLIENTE,
-          createdAt: new Date().toISOString(),
-          favorites: [],
-        })
-      }
-      setAuthModal(false)
-      return { success: true }
-    } catch (err) {
-      return { error: mapError(err.code) }
-    }
-  }
-
   const logout = () => signOut(auth)
 
   const resetPassword = async (email) => {
@@ -111,21 +88,25 @@ export function AuthProvider({ children }) {
     }
   }
 
-  const openLogin  = () => { setAuthTab('login');    setAuthModal(true) }
-  const openSignup = () => { setAuthTab('register'); setAuthModal(true) }
+  // Con FEATURE_LOGIN desactivado las funciones de apertura de modal son noop
+  const openLogin  = () => { if (FEATURE_LOGIN) { setAuthTab('login');    setAuthModal(true) } }
+  const openSignup = () => { if (FEATURE_LOGIN) { setAuthTab('register'); setAuthModal(true) } }
 
-  const isWholesale = user?.role === ROLES.MAYORISTA || user?.role === ROLES.EMPLEADO || user?.role === ROLES.ADMINISTRADOR
-  const canBuy      = !!user
-  const isAdmin     = user?.role === ROLES.ADMINISTRADOR
-  const isEmployee  = user?.role === ROLES.EMPLEADO || user?.role === ROLES.ADMINISTRADOR
+  // Con login suspendido todos pueden comprar (flujo sin cuenta)
+  const canBuy         = FEATURE_LOGIN ? !!user : true
+  const isWholesale    = user?.role === ROLES.MAYORISTA    || user?.role === ROLES.DISTRIBUIDOR  || user?.role === ROLES.ADMINISTRADOR
+  const isDistributor  = user?.role === ROLES.DISTRIBUIDOR || user?.role === ROLES.ADMINISTRADOR
+  const isAdmin        = user?.role === ROLES.ADMINISTRADOR
+  // isEmployee se mantiene para compatibilidad — admin puede acceder al panel
+  const isEmployee     = user?.role === ROLES.ADMINISTRADOR
 
   return (
     <AuthContext.Provider value={{
       user, authLoading,
-      login, loginWithGoogle, register, logout, resetPassword,
+      login, register, logout, resetPassword,
       authModal, setAuthModal, authTab, setAuthTab,
       openLogin, openSignup,
-      isWholesale, canBuy, isAdmin, isEmployee,
+      canBuy, isWholesale, isDistributor, isAdmin, isEmployee,
     }}>
       {children}
     </AuthContext.Provider>
@@ -136,15 +117,14 @@ export const useAuth = () => useContext(AuthContext)
 
 function mapError(code) {
   const map = {
-    'auth/user-not-found':       'No existe una cuenta con ese email.',
-    'auth/wrong-password':       'Contraseña incorrecta.',
-    'auth/invalid-credential':   'Email o contraseña incorrectos.',
-    'auth/email-already-in-use': 'Ya existe una cuenta con ese email.',
-    'auth/weak-password':        'La contraseña debe tener al menos 6 caracteres.',
-    'auth/invalid-email':        'El email no es válido.',
-    'auth/too-many-requests':    'Demasiados intentos. Intentá más tarde.',
-    'auth/popup-closed-by-user': 'Se cerró el popup de Google.',
-    'auth/network-request-failed': 'Error de red. Verificá tu conexión.',
+    'auth/user-not-found':        'No existe una cuenta con ese email.',
+    'auth/wrong-password':        'Contraseña incorrecta.',
+    'auth/invalid-credential':    'Email o contraseña incorrectos.',
+    'auth/email-already-in-use':  'Ya existe una cuenta con ese email.',
+    'auth/weak-password':         'La contraseña debe tener al menos 6 caracteres.',
+    'auth/invalid-email':         'El email no es válido.',
+    'auth/too-many-requests':     'Demasiados intentos. Intentá más tarde.',
+    'auth/network-request-failed':'Error de red. Verificá tu conexión.',
   }
   return map[code] || 'Ocurrió un error. Intentá de nuevo.'
 }

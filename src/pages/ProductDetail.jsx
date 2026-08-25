@@ -12,6 +12,7 @@ import { useFavorites }  from '../context/FavoritesContext'
 import { useAuth }       from '../context/AuthContext'
 import { useToast }           from '../context/ToastContext'
 import { useRecentlyViewed }  from '../hooks/useRecentlyViewed'
+import { usePageTitle }       from '../hooks/usePageTitle'
 import { WHATSAPP_NUMBER }    from '../config/contact'
 import { CATEGORIES }         from '../data/products'
 import ProductCard            from '../components/products/ProductCard'
@@ -38,6 +39,8 @@ export default function ProductDetail() {
   const [notifySent, setNotifySent] = useState(false)
 
   const product = products.find(p => p.id === Number(id))
+
+  usePageTitle(product ? product.name : 'Producto')
 
   useEffect(() => {
     if (product) trackView(product.id)

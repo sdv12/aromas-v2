@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { usePageTitle } from '../hooks/usePageTitle'
 import {
   ClipboardList, ChevronDown, ChevronUp, Package,
   ArrowRight, Clock, CheckCircle, Truck, XCircle
@@ -124,6 +125,7 @@ function OrderCard({ order }) {
 }
 
 export default function OrderHistory() {
+  usePageTitle('Mis Pedidos')
   const { orders } = useOrders()
   const { user, openLogin } = useAuth()
 

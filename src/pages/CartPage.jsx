@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { usePageTitle } from '../hooks/usePageTitle'
 import {
   Trash2, Plus, Minus, ShoppingBag, ArrowRight, Tag, Mail,
   CreditCard, MessageCircle, Landmark, Loader2, AlertCircle
@@ -51,6 +52,7 @@ function buildWhatsAppMessage(items, subtotal, isWholesale) {
 }
 
 export default function CartPage() {
+  usePageTitle('Carrito de Compras')
   const { items, removeItem, updateQty, clearCart, subtotal } = useCart()
   const { user, isWholesale, openLogin } = useAuth()
   const { addOrder } = useOrders()
