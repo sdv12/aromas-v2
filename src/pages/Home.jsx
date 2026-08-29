@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, ChevronLeft, ChevronRight, Star, Truck, Award, Headphones, Package, Clock } from 'lucide-react'
+import { ArrowRight, ChevronLeft, ChevronRight, Star, Truck, Award, Headphones, Package, Clock, ShoppingCart } from 'lucide-react'
 import { CATEGORIES } from '../data/products'
 import { useProducts } from '../context/ProductsContext'
 import ProductCard     from '../components/products/ProductCard'
 import { useAuth }     from '../context/AuthContext'
+import { useCart }     from '../context/CartContext'
+import { useToast }    from '../context/ToastContext'
 import { useRecentlyViewed } from '../hooks/useRecentlyViewed'
 import { usePageTitle }      from '../hooks/usePageTitle'
 import { WHATSAPP_NUMBER }   from '../config/contact'
@@ -31,7 +33,7 @@ const SLIDES = [
 ]
 
 const FEATURES = [
-  { icon: Truck,      title: 'Envío a toda Córdoba',  desc: 'Entrega en 24–48 hs' },
+  { icon: Truck,      title: 'Envíos a todo el país', desc: 'Entrega rápida y segura' },
   { icon: Award,      title: 'Calidad Premium',        desc: 'Fragancias exclusivas' },
   { icon: Headphones, title: 'Atención Personalizada', desc: 'Lun–Sáb 9 a 18 hs' },
   { icon: Package,    title: 'Stock Permanente',        desc: '+200 productos disponibles' },
@@ -80,13 +82,47 @@ export default function Home() {
   const [slide, setSlide]   = useState(0)
   const { isWholesale }     = useAuth()
   const { products, featured } = useProducts()
+  const { addItem }         = useCart()
+  const { addToast }        = useToast()
   const { ids: recentIds, clear: clearRecent } = useRecentlyViewed()
   const recentProducts = recentIds.map(id => products.find(p => p.id === id)).filter(Boolean)
+
+  // Featured products carousel
+  const featCarouselRef = useRef(null)
 
   useEffect(() => {
     const id = setInterval(() => setSlide(s => (s + 1) % SLIDES.length), 5000)
     return () => clearInterval(id)
   }, [])
+
+  // Auto-advance featured carousel
+  useEffect(() => {
+    const el = featCarouselRef.current
+    if (!el || featured.length === 0) return
+    const id = setInterval(() => {
+      const cardW = el.clientWidth / Math.round(el.clientWidth / 220)
+      const maxScroll = el.scrollWidth - el.clientWidth
+      const next = el.scrollLeft + cardW >= maxScroll - 1 ? 0 : el.scrollLeft + cardW
+      el.scrollTo({ left: next, behavior: 'smooth' })
+    }, 3200)
+    return () => clearInterval(id)
+  }, [featured])
+
+  const addPromoToCart = (promo, qty) => {
+    const item = {
+      id: `promo-${promo.producto.replace(/\s+/g, '-').toLowerCase()}-${qty}`,
+      name: `${promo.producto} — Pack ${qty} u. (${promo.presentacion})`,
+      price: qty === 24 ? promo.uni24 : promo.uni48,
+      wholesalePrice: qty === 24 ? promo.uni24 : promo.uni48,
+      image: '',
+      brand: 'Aura',
+      stock: 999,
+      rating: 5,
+      reviews: 0,
+    }
+    addItem(item)
+    addToast({ type: 'success', title: 'Agregado al carrito', message: item.name })
+  }
 
   const prev = () => setSlide(s => (s - 1 + SLIDES.length) % SLIDES.length)
   const next = () => setSlide(s => (s + 1) % SLIDES.length)
@@ -180,20 +216,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Wholesale banner */}
-      <section className="py-5 bg-cream-200 dark:from-navy-850 dark:to-navy-900 border-y border-cream-300 dark:border-navy-700">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>
-            <p className="text-sm font-bold text-primary-700 dark:text-accent-400 uppercase tracking-wide mb-0.5">¡Promos Mayoristas Disponibles!</p>
-            <p className="text-gray-700 dark:text-cream-300 text-sm">Desde 24 unidades con precios especiales.{' '}
-              <Link to="/mayorista" className="text-primary-600 hover:underline font-medium">Consultar catálogo</Link>
-            </p>
-          </div>
-          <Link to="/mayorista" className="btn-outline text-sm shrink-0">Solicitar Cotización</Link>
-        </div>
-      </section>
+      {/* Wholesale banner — suspendido por ahora */}
 
-      {/* Featured */}
+      {/* Featured — carrusel auto-avanzante */}
       <section className="py-14">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
@@ -202,9 +227,15 @@ export default function Home() {
               Ver todos <ArrowRight size={16} />
             </Link>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {featured.slice(0, 10).map(p => (
-              <ProductCard key={p.id} product={p} showWholesale={isWholesale} />
+          <div
+            ref={featCarouselRef}
+            className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-3"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {featured.slice(0, 12).map(p => (
+              <div key={p.id} className="flex-shrink-0 w-52 sm:w-56 lg:w-60 snap-start">
+                <ProductCard product={p} showWholesale={isWholesale} />
+              </div>
             ))}
           </div>
         </div>
@@ -251,14 +282,26 @@ export default function Home() {
                   <p className="text-primary-300 text-xs mt-0.5">{p.presentacion}</p>
                 </div>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between bg-accent-600/20 border border-accent-500/30 rounded-xl px-3 py-2">
+                  <button
+                    onClick={() => addPromoToCart(p, 24)}
+                    className="w-full flex items-center justify-between bg-accent-600/20 border border-accent-500/30 rounded-xl px-3 py-2 hover:bg-accent-500/30 transition-colors group"
+                  >
                     <span className="text-accent-300 text-xs font-bold">24 UNI</span>
-                    <span className="text-white font-extrabold text-sm">${p.uni24.toLocaleString('es-AR')}</span>
-                  </div>
-                  <div className="flex items-center justify-between bg-accent-500/20 border border-accent-400/30 rounded-xl px-3 py-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-white font-extrabold text-sm">${p.uni24.toLocaleString('es-AR')}</span>
+                      <ShoppingCart size={13} className="text-accent-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => addPromoToCart(p, 48)}
+                    className="w-full flex items-center justify-between bg-accent-500/20 border border-accent-400/30 rounded-xl px-3 py-2 hover:bg-accent-400/30 transition-colors group"
+                  >
                     <span className="text-accent-200 text-xs font-bold">48 UNI</span>
-                    <span className="text-white font-extrabold text-sm">${p.uni48.toLocaleString('es-AR')}</span>
-                  </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-white font-extrabold text-sm">${p.uni48.toLocaleString('es-AR')}</span>
+                      <ShoppingCart size={13} className="text-accent-200 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                  </button>
                 </div>
               </div>
             ))}

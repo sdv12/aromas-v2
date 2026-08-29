@@ -59,7 +59,7 @@ export default function Header() {
   const isActive = to => location.pathname === to
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-navy-900/95 backdrop-blur-md border-b border-cream-300 dark:border-navy-800 shadow-sm">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-cream-100/95 dark:bg-navy-900/95 backdrop-blur-md border-b border-cream-300 dark:border-navy-800 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
 
@@ -200,7 +200,7 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {mobileOpen && (
-        <div className="md:hidden bg-white dark:bg-navy-900 border-t border-cream-300 dark:border-navy-800 shadow-lg">
+        <div className="md:hidden bg-cream-100 dark:bg-navy-900 border-t border-cream-300 dark:border-navy-800 shadow-lg">
           <nav className="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-1">
             {NAV_LINKS.map(({ to, label }) => (
               <Link

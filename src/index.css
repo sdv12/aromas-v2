@@ -8,7 +8,7 @@
   html { scroll-behavior: smooth; }
   body {
     @apply font-sans antialiased transition-colors duration-300;
-    background-color: #ffffff;
+    background-color: #f5f0e9;
     color: #1c1916;
   }
 

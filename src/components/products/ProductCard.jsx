@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link }       from 'react-router-dom'
-import { ShoppingCart, Heart, Star, Tag, Bell, BellRing } from 'lucide-react'
+import { ShoppingCart, Heart, Bell, BellRing } from 'lucide-react'
 import { useCart }      from '../../context/CartContext'
 import { useFavorites } from '../../context/FavoritesContext'
 import { useAuth }      from '../../context/AuthContext'
@@ -51,16 +51,11 @@ function NotifyButton({ product }) {
   )
 }
 
-export default function ProductCard({ product, showWholesale }) {
+export default function ProductCard({ product, showWholesale: _showWholesale }) {
   const { addItem }                = useCart()
   const { toggle, isFavorite }     = useFavorites()
   const { canBuy, openLogin }      = useAuth()
   const { addToast }               = useToast()
-
-  const price         = showWholesale ? product.wholesalePrice : product.price
-  const originalPrice = product.isOffer
-    ? (showWholesale ? product.wholesalePrice : product.price) / (1 - product.offerPercent / 100)
-    : null
 
   const handleAddToCart = (e) => {
     e.preventDefault()
@@ -152,56 +147,47 @@ export default function ProductCard({ product, showWholesale }) {
       <div className="p-3 flex flex-col flex-1">
         <p className="text-xs text-gray-400 dark:text-gray-500 mb-0.5">{product.brand}</p>
         <Link to={`/producto/${product.id}`}>
-          <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100 line-clamp-2 leading-tight mb-2 flex-1 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+          <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100 line-clamp-2 leading-tight mb-1.5 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
             {product.name}
           </h3>
         </Link>
 
-        {/* Rating */}
-        <div className="flex items-center gap-1 mb-2">
-          <div className="flex">
-            {[1,2,3,4,5].map(s => (
-              <Star key={s} size={12} className={s <= Math.round(product.rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'} />
-            ))}
-          </div>
-          <span className="text-xs text-gray-400">({product.reviews})</span>
+        {/* Stock badge */}
+        <div className="mb-1.5">
+          <StockBadgeSmall stock={product.stock} />
         </div>
 
-        {/* Price + stock badge */}
-        <div className="flex items-end justify-between gap-2 mb-2">
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className={`text-lg font-bold ${outOfStock ? 'text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-white'}`}>
+        {/* Tiered pricing */}
+        <div className="mt-auto pt-2 border-t border-cream-200 dark:border-navy-700 space-y-0.5">
+          {[
+            { label: 'Minorista',     price: product.price },
+            { label: 'May. mín. 3',  price: product.wholesalePrice },
+            { label: 'May. mín. 48', price: Math.round(product.wholesalePrice * 0.968) },
+            { label: 'May. mín. 120',price: Math.round(product.wholesalePrice * 0.945) },
+          ].map(({ label, price }) => (
+            <div key={label} className="flex justify-between items-center">
+              <span className="text-[9px] text-gray-400 dark:text-gray-500">{label}</span>
+              <span className={`text-xs font-semibold ${outOfStock ? 'text-gray-400' : 'text-gray-800 dark:text-gray-100'}`}>
                 ${price.toLocaleString('es-AR')}
               </span>
-              {product.isOffer && originalPrice && !outOfStock && (
-                <span className="text-xs text-gray-400 line-through">
-                  ${Math.round(originalPrice).toLocaleString('es-AR')}
-                </span>
-              )}
             </div>
-            <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-              {!outOfStock && (
-                showWholesale
-                  ? <span className="badge-wholesale flex items-center gap-0.5"><Tag size={9} />Mayorista</span>
-                  : <span className="badge-retail">Retail</span>
-              )}
-              <StockBadgeSmall stock={product.stock} />
-            </div>
-          </div>
-          {!outOfStock && (
-            <button
-              onClick={handleAddToCart}
-              className="shrink-0 w-9 h-9 rounded-full bg-primary-600 hover:bg-primary-700 text-white flex items-center justify-center transition-all active:scale-90 shadow"
-              aria-label="Agregar"
-            >
-              <ShoppingCart size={16} />
-            </button>
+          ))}
+          {product.isOffer && !outOfStock && (
+            <span className="badge-offer inline-block mt-0.5" style={{ fontSize: 9 }}>-{product.offerPercent}% OFF</span>
           )}
         </div>
 
-        {/* Notify me — only when out of stock */}
-        {outOfStock && <NotifyButton product={product} />}
+        {/* Add to cart */}
+        {!outOfStock ? (
+          <button
+            onClick={handleAddToCart}
+            className="mt-2 w-full flex items-center justify-center gap-1.5 text-xs font-semibold bg-primary-700 hover:bg-primary-800 dark:bg-accent-500 dark:hover:bg-accent-600 text-white py-2 rounded-lg transition-all active:scale-95"
+          >
+            <ShoppingCart size={13} /> Agregar
+          </button>
+        ) : (
+          <NotifyButton product={product} />
+        )}
       </div>
     </div>
   )

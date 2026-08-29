@@ -5,10 +5,19 @@ import { CATEGORIES, BRANDS } from '../../data/products'
 export default function ProductFilters({ filters, onChange, onReset, isMobile }) {
   const [open, setOpen] = useState(false)
 
-  const toggle = key => val => {
-    const current = filters[key]
-    const next = current.includes(val) ? current.filter(v => v !== val) : [...current, val]
-    onChange({ ...filters, [key]: next })
+  // Categoría: selección única (radio)
+  const selectCategory = id => {
+    const next = filters.categories.includes(id) ? [] : [id]
+    onChange({ ...filters, categories: next })
+  }
+
+  // Extras: solo uno activo a la vez
+  const selectExtra = key => {
+    onChange({
+      ...filters,
+      onlyOffer:     key === 'onlyOffer'     ? !filters.onlyOffer     : false,
+      onlyFeatured:  key === 'onlyFeatured'  ? !filters.onlyFeatured  : false,
+    })
   }
 
   const Section = ({ title, children }) => {
@@ -29,17 +38,15 @@ export default function ProductFilters({ filters, onChange, onReset, isMobile })
 
   const content = (
     <div className="space-y-0">
-      {/* Mayorista toggle */}
-      <div className="mb-4 pb-4 border-b border-cream-200 dark:border-navy-700">
-        <label className="flex items-center justify-between cursor-pointer">
+      {/* Mayorista toggle — deshabilitado por ahora */}
+      <div className="mb-4 pb-4 border-b border-cream-200 dark:border-navy-700 opacity-40">
+        <label className="flex items-center justify-between cursor-not-allowed">
           <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Modo Mayorista</span>
-          <button
-            onClick={() => onChange({ ...filters, wholesale: !filters.wholesale })}
-            className={`relative w-11 h-6 rounded-full transition-colors ${filters.wholesale ? 'bg-yellow-400' : 'bg-gray-300 dark:bg-gray-600'}`}
-          >
-            <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${filters.wholesale ? 'translate-x-5' : ''}`} />
-          </button>
+          <div className="relative w-11 h-6 rounded-full bg-gray-300 dark:bg-gray-600 cursor-not-allowed">
+            <span className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow" />
+          </div>
         </label>
+        <p className="text-[10px] text-gray-400 mt-1">Los precios mayoristas se muestran en cada producto</p>
       </div>
 
       <Section title="Categoría">
@@ -47,10 +54,11 @@ export default function ProductFilters({ filters, onChange, onReset, isMobile })
           {CATEGORIES.map(cat => (
             <label key={cat.id} className="flex items-center gap-2 cursor-pointer group">
               <input
-                type="checkbox"
+                type="radio"
+                name="category-filter"
                 checked={filters.categories.includes(cat.id)}
-                onChange={() => toggle('categories')(cat.id)}
-                className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                onChange={() => selectCategory(cat.id)}
+                className="w-4 h-4 border-gray-300 text-primary-600 focus:ring-primary-500"
               />
               <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors">
                 {cat.icon} {cat.label}
@@ -78,34 +86,23 @@ export default function ProductFilters({ filters, onChange, onReset, isMobile })
         </div>
       </Section>
 
-      <Section title="Precio">
-        <div className="px-1">
-          <input
-            type="range"
-            min={0}
-            max={15000}
-            step={500}
-            value={filters.maxPrice}
-            onChange={e => onChange({ ...filters, maxPrice: Number(e.target.value) })}
-            className="w-full accent-primary-600"
-          />
-          <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>$0</span>
-            <span className="font-semibold text-primary-600">${filters.maxPrice.toLocaleString('es-AR')}</span>
-            <span>$15.000</span>
-          </div>
-        </div>
-      </Section>
+      {/* Selector de precio deshabilitado */}
+      <div className="border-b border-cream-200 dark:border-navy-700 pb-4 mb-4 opacity-40">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Precio máximo</p>
+        <input type="range" disabled className="w-full accent-primary-600 cursor-not-allowed" />
+        <p className="text-[10px] text-gray-400 mt-1">Próximamente disponible</p>
+      </div>
 
       <Section title="Extras">
         <div className="space-y-1.5">
           {[['onlyOffer','Solo Ofertas'],['onlyFeatured','Solo Destacados']].map(([key, label]) => (
             <label key={key} className="flex items-center gap-2 cursor-pointer group">
               <input
-                type="checkbox"
+                type="radio"
+                name="extras-filter"
                 checked={filters[key]}
-                onChange={() => onChange({ ...filters, [key]: !filters[key] })}
-                className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                onChange={() => selectExtra(key)}
+                className="w-4 h-4 border-gray-300 text-primary-600 focus:ring-primary-500"
               />
               <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors">
                 {label}

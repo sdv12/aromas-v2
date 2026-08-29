@@ -137,25 +137,21 @@ export default function DigitalCatalog() {
               )}
             </div>
 
-            {/* Modo de precios */}
-            <div className="flex items-center gap-1 bg-cream-100 rounded-lg p-1 text-xs font-semibold">
+            {/* Modo de precios — deshabilitado por ahora */}
+            <div className="flex items-center gap-1 bg-cream-100 rounded-lg p-1 text-xs font-semibold opacity-40 pointer-events-none" title="Próximamente disponible">
               {[
-                { id: 'retail',      label: 'Retail' },
-                { id: 'all',         label: 'Todos' },
-                { id: 'wholesale',   label: 'Mayorista' },
-                ...(isDistributor || isAdmin ? [{ id: 'distributor', label: 'Distribuidor' }] : []),
+                { id: 'retail',    label: 'Retail' },
+                { id: 'all',       label: 'Todos' },
+                { id: 'wholesale', label: 'Mayorista' },
               ].map(m => (
-                <button
+                <div
                   key={m.id}
-                  onClick={() => setPriceMode(m.id)}
-                  className={`px-3 py-1.5 rounded-md transition-all ${
-                    priceMode === m.id
-                      ? 'bg-primary-700 text-white shadow'
-                      : 'text-gray-500 hover:text-gray-700'
+                  className={`px-3 py-1.5 rounded-md ${
+                    m.id === 'all' ? 'bg-primary-700 text-white shadow' : 'text-gray-500'
                   }`}
                 >
                   {m.label}
-                </button>
+                </div>
               ))}
             </div>
 
