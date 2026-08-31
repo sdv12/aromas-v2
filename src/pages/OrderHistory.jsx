@@ -127,17 +127,19 @@ function OrderCard({ order }) {
 export default function OrderHistory() {
   usePageTitle('Mis Pedidos')
   const { orders } = useOrders()
-  const { user, openLogin } = useAuth()
+  const { user } = useAuth()
 
-  if (!user) {
+  if (!user && orders.length === 0) {
     return (
       <div className="max-w-lg mx-auto py-24 px-4 text-center">
         <ClipboardList size={56} className="mx-auto text-gray-300 dark:text-gray-700 mb-4" />
-        <h2 className="text-xl font-bold text-gray-700 dark:text-blue-200 mb-2">Iniciá sesión para ver tus pedidos</h2>
-        <p className="text-gray-500 mb-6 text-sm">Tu historial de compras estará disponible aquí.</p>
-        <button onClick={openLogin} className="btn-primary inline-flex items-center gap-2">
-          Iniciar sesión
-        </button>
+        <h2 className="text-xl font-bold text-gray-700 dark:text-blue-200 mb-2">Todavía no hiciste pedidos</h2>
+        <p className="text-gray-500 mb-6 text-sm">
+          Cuando confirmes un pedido lo vas a ver acá. Los pedidos como invitado se guardan en este dispositivo.
+        </p>
+        <Link to="/catalogo" className="btn-primary inline-flex items-center gap-2">
+          Ir al catálogo
+        </Link>
       </div>
     )
   }

@@ -56,21 +56,24 @@ const PAYMENT_METHODS = [
   },
 ]
 
-function buildWhatsAppMessage(items, subtotal, isWholesale) {
+function buildWhatsAppMessage(items, subtotal, isWholesale, customer) {
   const lines = items.map(i => {
     const price = isWholesale ? i.wholesalePrice : i.price
     return `• ${i.name} x${i.qty} = $${(price * i.qty).toLocaleString('es-AR')}`
   }).join('\n')
   const total = subtotal + SHIPPING
+  const quien = customer?.name
+    ? `\nCliente: ${customer.name}${customer.phone ? ` — ${customer.phone}` : ''}${customer.email ? ` — ${customer.email}` : ''}\n`
+    : ''
   return encodeURIComponent(
-    `Hola Aromas CBA! 👋\n\nQuiero confirmar el siguiente pedido:\n\n${lines}\n\nSubtotal: $${subtotal.toLocaleString('es-AR')}\nEnvío: $${SHIPPING.toLocaleString('es-AR')}\n*Total: $${total.toLocaleString('es-AR')}*\n\nPor favor confirmame disponibilidad. ¡Gracias!`
+    `Hola Aromas CBA! 👋\n\nQuiero confirmar el siguiente pedido:\n${quien}\n${lines}\n\nSubtotal: $${subtotal.toLocaleString('es-AR')}\nEnvío: $${SHIPPING.toLocaleString('es-AR')}\n*Total: $${total.toLocaleString('es-AR')}*\n\nPor favor confirmame disponibilidad. ¡Gracias!`
   )
 }
 
 export default function CartPage() {
   usePageTitle('Carrito de Compras')
   const { items, removeItem, updateQty, clearCart, subtotal } = useCart()
-  const { user, isWholesale, openLogin } = useAuth()
+  const { user, isWholesale } = useAuth()
   const { addOrder } = useOrders()
   const navigate     = useNavigate()
 
@@ -80,6 +83,34 @@ export default function CartPage() {
   const [payMethod,     setPayMethod]     = useState('whatsapp')
   const [mpLoading,     setMpLoading]     = useState(false)
   const [mpError,       setMpError]       = useState('')
+
+  // Datos del cliente invitado (cuando no hay sesión)
+  const [guest, setGuest] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('aromascba_guest')) || {} } catch { return {} }
+  })
+  const [guestError, setGuestError] = useState('')
+  const setGuestField = (k) => (e) => {
+    const g = { ...guest, [k]: e.target.value }
+    setGuest(g)
+    setGuestError('')
+    try { localStorage.setItem('aromascba_guest', JSON.stringify(g)) } catch { /* ignore */ }
+  }
+
+  /** Datos del cliente (sesión o invitado). null si faltan datos obligatorios. */
+  const datosCliente = (requiereEmail = false) => {
+    if (user) return { name: user.name || user.email, phone: '', email: user.email }
+    const name = (guest.name || '').trim()
+    const phone = (guest.phone || '').trim()
+    const email = (guest.email || '').trim()
+    if (!name) { setGuestError('Poné tu nombre.'); return null }
+    if (requiereEmail && !/^\S+@\S+\.\S+$/.test(email)) {
+      setGuestError('Poné un email válido para pagar con MercadoPago.'); return null
+    }
+    if (!requiereEmail && !phone && !email) {
+      setGuestError('Dejá un teléfono o un email de contacto.'); return null
+    }
+    return { name, phone, email }
+  }
 
   const sub      = subtotal(isWholesale)
   const discount = couponApplied ? Math.round(sub * 0.1) : 0
@@ -93,7 +124,7 @@ export default function CartPage() {
     }
   }
 
-  const saveOrder = (extra = {}) => addOrder({
+  const saveOrder = (customer, extra = {}) => addOrder({
     items:         items.map(i => ({ ...i })),
     subtotal:      sub - discount,
     discount,
@@ -102,12 +133,14 @@ export default function CartPage() {
     isWholesale,
     couponApplied,
     paymentMethod: payMethod,
+    customer:      customer || null,
     ...extra,
   })
 
   const handleWhatsApp = async () => {
-    if (!user) { openLogin(); return }
-    const msg = buildWhatsAppMessage(items, sub - discount, isWholesale)
+    const cliente = datosCliente()
+    if (!cliente) return
+    const msg = buildWhatsAppMessage(items, sub - discount, isWholesale, cliente)
     const emailBody = encodeURIComponent(
       `Hola,\n\nGracias por tu pedido en Aromas CBA.\n\nDetalle:\n${
         items.map(i => {
@@ -116,7 +149,7 @@ export default function CartPage() {
         }).join('\n')
       }\n\nTotal: $${total.toLocaleString('es-AR')}\n\n¡Nos pondremos en contacto pronto!\nAromas CBA`
     )
-    await saveOrder()
+    await saveOrder(cliente)
     window.open(`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Pedido – Aromas CBA')}&body=${emailBody}`, '_blank')
     setTimeout(() => window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank'), 500)
     clearCart()
@@ -124,15 +157,16 @@ export default function CartPage() {
   }
 
   const handleMercadoPago = async () => {
-    if (!user) { openLogin(); return }
+    const cliente = datosCliente(true)
+    if (!cliente) return
     setMpLoading(true)
     setMpError('')
     try {
-      const order = await saveOrder()
+      const order = await saveOrder(cliente)
       const origin = window.location.origin
       const pref = await createPreference({
         items,
-        payer:   { email: user.email, name: user.name },
+        payer:   { email: cliente.email, name: cliente.name },
         orderId: order.id,
         backUrls: {
           success: `${origin}/pago/resultado?status=approved`,
@@ -155,11 +189,12 @@ export default function CartPage() {
   }
 
   const handleTransferencia = async () => {
-    if (!user) { openLogin(); return }
+    const cliente = datosCliente()
+    if (!cliente) return
     const msg = encodeURIComponent(
-      `Hola! Quiero hacer un pedido por transferencia bancaria.\n\nTotal: $${total.toLocaleString('es-AR')}\n\n¿Me pasás el CBU/Alias?`
+      `Hola! Quiero hacer un pedido por transferencia bancaria.\n\nCliente: ${cliente.name}${cliente.phone ? ` — ${cliente.phone}` : ''}\nTotal: $${total.toLocaleString('es-AR')}\n\n¿Me pasás el CBU/Alias?`
     )
-    await saveOrder()
+    await saveOrder(cliente)
     clearCart()
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank')
     navigate('/mis-pedidos')
@@ -171,13 +206,6 @@ export default function CartPage() {
     else handleTransferencia()
   }
 
-  const btnLabel = () => {
-    if (!user) return 'Iniciar sesión para pedir'
-    if (mpLoading) return 'Procesando…'
-    if (payMethod === 'whatsapp')      return 'Confirmar por WhatsApp'
-    if (payMethod === 'mercadopago')   return 'Pagar con MercadoPago'
-    return 'Coordinar transferencia'
-  }
 
   if (items.length === 0) {
     return (
@@ -316,6 +344,38 @@ export default function CartPage() {
               <p className="text-xs text-gray-400 mt-1">Prueba: AROMAS10</p>
             </div>
 
+            {/* Datos del cliente (invitado) */}
+            {!user && (
+              <div>
+                <p className="text-sm font-semibold text-gray-700 dark:text-blue-200 mb-2">Tus datos</p>
+                <div className="space-y-2">
+                  <input
+                    className="input text-sm py-2"
+                    placeholder="Nombre y apellido *"
+                    value={guest.name || ''}
+                    onChange={setGuestField('name')}
+                  />
+                  <input
+                    className="input text-sm py-2"
+                    placeholder="Teléfono / WhatsApp"
+                    value={guest.phone || ''}
+                    onChange={setGuestField('phone')}
+                  />
+                  <input
+                    className="input text-sm py-2"
+                    type="email"
+                    placeholder={payMethod === 'mercadopago' ? 'Email *' : 'Email'}
+                    value={guest.email || ''}
+                    onChange={setGuestField('email')}
+                  />
+                </div>
+                {guestError && <p className="text-xs text-red-500 mt-1">{guestError}</p>}
+                <p className="text-xs text-gray-400 mt-1">
+                  Dejá al menos un teléfono o email para que podamos contactarte.
+                </p>
+              </div>
+            )}
+
             {/* Payment method */}
             <div>
               <p className="text-sm font-semibold text-gray-700 dark:text-blue-200 mb-2">Método de pago</p>
@@ -379,12 +439,12 @@ export default function CartPage() {
                   <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                   </svg>
-                  {user ? 'Confirmar por WhatsApp' : 'Iniciar sesión para pedir'}
+                  Confirmar por WhatsApp
                 </>
               ) : payMethod === 'mercadopago' ? (
-                <><CreditCard size={18} /> {user ? 'Pagar con MercadoPago' : 'Iniciar sesión para pedir'}</>
+                <><CreditCard size={18} /> Pagar con MercadoPago</>
               ) : (
-                <><Mail size={18} /> {user ? 'Coordinar transferencia' : 'Iniciar sesión para pedir'}</>
+                <><Mail size={18} /> Coordinar transferencia</>
               )}
             </button>
 
