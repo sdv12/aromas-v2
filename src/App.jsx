@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
-import { ProductsProvider } from './context/ProductsContext'
+import { ProductsProvider, useProducts } from './context/ProductsContext'
 import { OrdersProvider }   from './context/OrdersContext'
+import { useCart } from './context/CartContext'
 import Layout        from './components/layout/Layout'
 import Home          from './pages/Home'
 import Catalog       from './pages/Catalog'
@@ -14,10 +16,21 @@ import OrderHistory   from './pages/OrderHistory'
 import PaymentResult  from './pages/PaymentResult'
 import DigitalCatalog from './pages/DigitalCatalog'
 
+/** Mantiene el carrito sincronizado con el stock/precio del catálogo. */
+function CatalogSync() {
+  const { products, loading } = useProducts()
+  const { syncCatalog } = useCart()
+  useEffect(() => {
+    if (!loading && products.length) syncCatalog(products)
+  }, [loading, products, syncCatalog])
+  return null
+}
+
 export default function App() {
   return (
     <ProductsProvider>
       <OrdersProvider>
+        <CatalogSync />
         <Layout>
           <Routes>
             <Route path="/"                element={<Home />} />

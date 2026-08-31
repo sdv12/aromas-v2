@@ -13,6 +13,22 @@ import { WHATSAPP_NUMBER, CONTACT_EMAIL } from '../config/contact'
 
 const SHIPPING = 5500
 
+/** Indicador de stock restante para una línea del carrito. */
+function StockRestante({ stock, qty }) {
+  if (stock == null) return null
+  const restante = stock - qty
+  if (stock === 0) {
+    return <span className="text-[11px] font-semibold text-red-600">Sin stock</span>
+  }
+  if (restante <= 0) {
+    return <span className="text-[11px] font-semibold text-red-600">Máx. disponible: {stock}</span>
+  }
+  if (restante <= 3) {
+    return <span className="text-[11px] font-semibold text-yellow-600 dark:text-yellow-500">Quedan {restante}</span>
+  }
+  return <span className="text-[11px] font-medium text-green-600 dark:text-green-500">Stock: {stock}</span>
+}
+
 const PAYMENT_METHODS = [
   {
     id:    'whatsapp',
@@ -211,16 +227,21 @@ export default function CartPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 mx-auto">
-                      <button onClick={() => updateQty(item.id, item.qty - 1)}
-                        className="w-7 h-7 rounded-full border border-gray-300 dark:border-navy-600 flex items-center justify-center hover:border-primary-500 hover:text-primary-600 transition-colors">
-                        <Minus size={13} />
-                      </button>
-                      <span className="w-8 text-center font-semibold text-sm">{item.qty}</span>
-                      <button onClick={() => updateQty(item.id, item.qty + 1)}
-                        className="w-7 h-7 rounded-full border border-gray-300 dark:border-navy-600 flex items-center justify-center hover:border-primary-500 hover:text-primary-600 transition-colors">
-                        <Plus size={13} />
-                      </button>
+                    <div className="mx-auto flex flex-col items-center gap-1">
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => updateQty(item.id, item.qty - 1)}
+                          className="w-7 h-7 rounded-full border border-gray-300 dark:border-navy-600 flex items-center justify-center hover:border-primary-500 hover:text-primary-600 transition-colors">
+                          <Minus size={13} />
+                        </button>
+                        <span className="w-8 text-center font-semibold text-sm">{item.qty}</span>
+                        <button
+                          onClick={() => updateQty(item.id, item.qty + 1)}
+                          disabled={item.stock != null && item.qty >= item.stock}
+                          className="w-7 h-7 rounded-full border border-gray-300 dark:border-navy-600 flex items-center justify-center hover:border-primary-500 hover:text-primary-600 transition-colors disabled:opacity-30 disabled:hover:border-gray-300 disabled:hover:text-current disabled:cursor-not-allowed">
+                          <Plus size={13} />
+                        </button>
+                      </div>
+                      <StockRestante stock={item.stock} qty={item.qty} />
                     </div>
 
                     <div className="text-sm text-center text-gray-500 dark:text-gray-400 hidden sm:block">
