@@ -1,3 +1,4 @@
+// Fallback: se usa si el panel (VITE_CATALOG_API_URL) no está configurado.
 export const CATEGORIES = [
   { id: 'aromatizantes',  label: 'Aromatizantes',        icon: '🌸' },
   { id: 'difusores',      label: 'Difusores de Ambiente', icon: '🌿' },
@@ -7,6 +8,24 @@ export const CATEGORIES = [
   { id: 'velas',          label: 'Velas',                 icon: '🕯️' },
   { id: 'sets',           label: 'Sets & Promos',         icon: '🎁' },
 ]
+
+// Ícono por slug de categoría (las categorías reales vienen del panel).
+export const CATEGORY_ICONS = {
+  _default: '🏷️',
+  aromatizantes: '🌸',
+  difusores: '🌿',
+  'difusores-de-ambiente': '🌿',
+  auto: '🚗',
+  desodorantes: '💧',
+  humidificador: '✨',
+  esencias: '💧',
+  velas: '🕯️',
+  sets: '🎁',
+  'sets-promos': '🎁',
+  promos: '🎁',
+  hogar: '🏠',
+  'linea-hogar': '🏠',
+}
 
 export const BRANDS = ['Aura', 'Aura Premium', 'Aura Home']
 

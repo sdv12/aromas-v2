@@ -4,7 +4,6 @@ import { Printer, Download, Filter, ChevronDown, Tag } from 'lucide-react'
 import { useProducts }  from '../context/ProductsContext'
 import { useAuth }      from '../context/AuthContext'
 import { usePageTitle } from '../hooks/usePageTitle'
-import { CATEGORIES }   from '../data/products'
 
 // ── Precio formateado ─────────────────────────────────────────
 function price(n) { return `$${Number(n).toLocaleString('es-AR')}` }
@@ -73,7 +72,7 @@ function CatalogCard({ product, showWholesale, showDistributor }) {
 
 export default function DigitalCatalog() {
   usePageTitle('Catálogo Digital')
-  const { products, loading } = useProducts()
+  const { products, loading, categories: CATEGORIES } = useProducts()
   const { isWholesale, isDistributor, isAdmin } = useAuth()
 
   const [selectedCat,    setSelectedCat]    = useState('all')

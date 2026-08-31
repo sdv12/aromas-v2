@@ -39,9 +39,36 @@ const ROLE_COLORS = {
 
 export default function CatalogAdmin() {
   usePageTitle('Panel Admin')
-  const { products, addProduct, updateProduct, deleteProduct } = useProducts()
+  const { products, addProduct, updateProduct, deleteProduct, readOnly } = useProducts()
   const { isEmployee, isAdmin, user: currentUser } = useAuth()
   const navigate = useNavigate()
+
+  const PANEL_URL = import.meta.env.VITE_CATALOG_API_URL
+
+  if (readOnly) {
+    return (
+      <div className="max-w-lg mx-auto py-20 px-4 text-center">
+        <Package size={40} className="mx-auto mb-4 text-primary-500" />
+        <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+          El catálogo se administra desde el Panel
+        </h1>
+        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+          Los productos, precios y stock ahora se cargan en el Panel de
+          Administración. Esta pantalla quedó fuera de uso.
+        </p>
+        {PANEL_URL && (
+          <a
+            href={PANEL_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="btn-primary mt-6 inline-flex"
+          >
+            Abrir el Panel
+          </a>
+        )}
+      </div>
+    )
+  }
 
   const [activeTab,    setActiveTab]    = useState('catalog')
   const [search,       setSearch]       = useState('')

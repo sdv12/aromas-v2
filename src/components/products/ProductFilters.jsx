@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Filter, X, ChevronDown } from 'lucide-react'
-import { CATEGORIES, BRANDS } from '../../data/products'
+import { useProducts } from '../../context/ProductsContext'
 
 export default function ProductFilters({ filters, onChange, onReset, isMobile }) {
   const [open, setOpen] = useState(false)
+  const { categories: CATEGORIES, brands: BRANDS } = useProducts()
 
   // Categoría: selección única (radio)
   const selectCategory = id => {

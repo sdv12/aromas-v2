@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, ChevronLeft, ChevronRight, Star, Truck, Award, Headphones, Package, Clock, ShoppingCart } from 'lucide-react'
-import { CATEGORIES } from '../data/products'
 import { useProducts } from '../context/ProductsContext'
 import ProductCard     from '../components/products/ProductCard'
 import { useAuth }     from '../context/AuthContext'
@@ -81,7 +80,7 @@ export default function Home() {
   usePageTitle(null)
   const [slide, setSlide]   = useState(0)
   const { isWholesale }     = useAuth()
-  const { products, featured } = useProducts()
+  const { products, featured, categories: CATEGORIES } = useProducts()
   const { addItem }         = useCart()
   const { addToast }        = useToast()
   const { ids: recentIds, clear: clearRecent } = useRecentlyViewed()

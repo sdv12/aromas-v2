@@ -14,7 +14,6 @@ import { useToast }           from '../context/ToastContext'
 import { useRecentlyViewed }  from '../hooks/useRecentlyViewed'
 import { usePageTitle }       from '../hooks/usePageTitle'
 import { WHATSAPP_NUMBER }    from '../config/contact'
-import { CATEGORIES }         from '../data/products'
 import ProductCard            from '../components/products/ProductCard'
 
 function StockBadge({ stock }) {
@@ -26,7 +25,7 @@ function StockBadge({ stock }) {
 
 export default function ProductDetail() {
   const { id }           = useParams()
-  const { products }     = useProducts()
+  const { products, categories: CATEGORIES } = useProducts()
   const { addItem }      = useCart()
   const { toggle, isFavorite }          = useFavorites()
   const { canBuy, openLogin, isWholesale, user } = useAuth()
@@ -38,7 +37,7 @@ export default function ProductDetail() {
   const [addedAnim,  setAddedAnim]  = useState(false)
   const [notifySent, setNotifySent] = useState(false)
 
-  const product = products.find(p => p.id === Number(id))
+  const product = products.find(p => String(p.id) === String(id))
 
   usePageTitle(product ? product.name : 'Producto')
 

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { Search, X, ArrowRight, Tag } from 'lucide-react'
 import { useProducts } from '../../context/ProductsContext'
 import { useAuth }     from '../../context/AuthContext'
-import { CATEGORIES }  from '../../data/products'
 
 const MAX_PRODUCTS  = 5
 const MAX_CATS      = 2
@@ -25,7 +24,7 @@ function highlight(text, query) {
 }
 
 export default function SearchAutocomplete({ onClose }) {
-  const { products }    = useProducts()
+  const { products, categories: CATEGORIES } = useProducts()
   const { isWholesale } = useAuth()
   const navigate        = useNavigate()
 
