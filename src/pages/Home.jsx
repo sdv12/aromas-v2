@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, ChevronLeft, ChevronRight, Star, Truck, Award, Headphones, Package, Clock, ShoppingCart } from 'lucide-react'
 import { useProducts } from '../context/ProductsContext'
@@ -83,6 +83,18 @@ const FRAGANCIAS = [
   'Manzana Verde', 'Melón', 'Pino', 'Frutilla',
 ]
 
+// Productos hardcodeados para el carrusel cuando Firebase no tiene destacados
+const FEATURED_DEMO = [
+  { id: 'fd-1',  name: 'Aromatizante Ambiente y Telas 250ml',  brand: 'Aura', price: 3200, wholesalePrice: 2090, image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=400&h=400&fit=crop', rating: 5, reviews: 142, stock: 100, isFeatured: true, category: 'textil',   isOffer: false },
+  { id: 'fd-2',  name: 'Difusor de Ambientes 60ml con Varillas', brand: 'Aura', price: 3800, wholesalePrice: 2538, image: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?w=400&h=400&fit=crop', rating: 5, reviews: 98,  stock: 100, isFeatured: true, category: 'hogar',   isOffer: false },
+  { id: 'fd-3',  name: 'Difusor Aromático para Auto',           brand: 'Aura', price: 2700, wholesalePrice: 1804, image: 'https://images.unsplash.com/photo-1610878185620-4a35027a5b7a?w=400&h=400&fit=crop', rating: 5, reviews: 203, stock: 100, isFeatured: true, category: 'auto',    isOffer: false },
+  { id: 'fd-4',  name: 'Desodorante Concentrado 500ml',         brand: 'Aura', price: 4200, wholesalePrice: 3244, image: 'https://images.unsplash.com/photo-1616137150093-74a0c8fd8f61?w=400&h=400&fit=crop', rating: 5, reviews: 76,  stock: 100, isFeatured: true, category: 'hogar',   isOffer: false },
+  { id: 'fd-5',  name: 'Esencia para Humidificador 60ml',       brand: 'Aura', price: 3500, wholesalePrice: 2538, image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=400&fit=crop', rating: 5, reviews: 119, stock: 100, isFeatured: true, category: 'hogar',   isOffer: false },
+  { id: 'fd-6',  name: 'Set 3 Velas Aromáticas Premium',        brand: 'Aura', price: 5800, wholesalePrice: 4350, image: 'https://images.unsplash.com/photo-1572726729207-a78d6feb18d7?w=400&h=400&fit=crop', rating: 5, reviews: 87,  stock: 100, isFeatured: true, category: 'velas',   isOffer: true,  offerPercent: 15 },
+  { id: 'fd-7',  name: 'Spray Textil Lavanda 300ml',            brand: 'Aura', price: 2900, wholesalePrice: 2090, image: 'https://images.unsplash.com/photo-1558171813-0d80d14a1c37?w=400&h=400&fit=crop', rating: 5, reviews: 65,  stock: 100, isFeatured: true, category: 'textil',  isOffer: false },
+  { id: 'fd-8',  name: 'Kit Iniciador Mayorista — 24 u.',       brand: 'Aura', price: 59232, wholesalePrice: 59232, image: 'https://images.unsplash.com/photo-1624454002302-36b824d7bd0a?w=400&h=400&fit=crop', rating: 5, reviews: 44, stock: 50, isFeatured: true, category: 'promo',   isOffer: true,  offerPercent: 20 },
+]
+
 export default function Home() {
   usePageTitle(null)
   const [slide, setSlide]   = useState(0)
@@ -93,30 +105,18 @@ export default function Home() {
   const { ids: recentIds, clear: clearRecent } = useRecentlyViewed()
   const recentProducts = recentIds.map(id => products.find(p => p.id === id)).filter(Boolean)
 
-  // Featured products carousel
-  const featCarouselRef = useRef(null)
+  // Si Firebase no tiene productos con isFeatured, usamos el demo hardcodeado
+  const displayFeatured = featured.length > 0 ? featured : FEATURED_DEMO
 
   // Modal de fragancia para promos
   const [promoModal, setPromoModal] = useState(null) // { promo, qty }
   const [selectedFragancia, setSelectedFragancia] = useState('')
+  const [marqueeHovered, setMarqueeHovered] = useState(false)
 
   useEffect(() => {
     const id = setInterval(() => setSlide(s => (s + 1) % SLIDES.length), 5000)
     return () => clearInterval(id)
   }, [])
-
-  // Auto-advance featured carousel
-  useEffect(() => {
-    const el = featCarouselRef.current
-    if (!el || featured.length === 0) return
-    const id = setInterval(() => {
-      const cardW = el.clientWidth / Math.round(el.clientWidth / 220)
-      const maxScroll = el.scrollWidth - el.clientWidth
-      const next = el.scrollLeft + cardW >= maxScroll - 1 ? 0 : el.scrollLeft + cardW
-      el.scrollTo({ left: next, behavior: 'smooth' })
-    }, 3200)
-    return () => clearInterval(id)
-  }, [featured])
 
   const openPromoModal = (promo, qty) => {
     setSelectedFragancia('')
@@ -253,22 +253,33 @@ export default function Home() {
 
       {/* Wholesale banner — suspendido por ahora */}
 
-      {/* Featured — carrusel auto-avanzante */}
+      {/* Featured — marquee infinito */}
       <section className="py-14">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between mb-8">
+        <div className="max-w-7xl mx-auto px-4 mb-8">
+          <div className="flex items-center justify-between">
             <h2 className="font-display text-3xl font-medium text-gray-900 dark:text-white">Productos Destacados</h2>
             <Link to="/catalogo" className="text-primary-600 hover:underline text-sm font-medium flex items-center gap-1">
               Ver todos <ArrowRight size={16} />
             </Link>
           </div>
+        </div>
+        {/* Marquee con overflow oculto — sin scroll-snap, puramente CSS */}
+        <div
+          className="overflow-hidden"
+          onMouseEnter={() => setMarqueeHovered(true)}
+          onMouseLeave={() => setMarqueeHovered(false)}
+        >
           <div
-            ref={featCarouselRef}
-            className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-3"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            className="flex gap-4"
+            style={{
+              animation: `marquee ${Math.max(20, displayFeatured.length * 4)}s linear infinite`,
+              animationPlayState: marqueeHovered ? 'paused' : 'running',
+              width: 'max-content',
+            }}
           >
-            {featured.slice(0, 12).map(p => (
-              <div key={p.id} className="flex-shrink-0 w-52 sm:w-56 lg:w-60 snap-start">
+            {/* Duplicamos los items para el loop continuo */}
+            {[...displayFeatured, ...displayFeatured].map((p, i) => (
+              <div key={`${p.id}-${i}`} className="flex-shrink-0 w-52 sm:w-56 lg:w-60">
                 <ProductCard product={p} showWholesale={isWholesale} />
               </div>
             ))}

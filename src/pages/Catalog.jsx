@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { Search, Grid3X3, LayoutList, Heart, ShoppingCart } from 'lucide-react'
@@ -79,6 +79,12 @@ export default function Catalog() {
   const [sort,    setSort]    = useState('popular')
   const [view,    setView]    = useState('grid')
   const [tab,     setTab]     = useState(initTab)
+
+  // Sincroniza el tab cuando cambia la URL (ej: corazón del header)
+  useEffect(() => {
+    const t = params.get('tab') || 'todos'
+    setTab(t)
+  }, [params])
   const [filters, setFilters] = useState({
     ...DEFAULT_FILTERS,
     categories: initCategory ? [initCategory] : [],

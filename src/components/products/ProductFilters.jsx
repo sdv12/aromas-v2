@@ -6,6 +6,14 @@ export default function ProductFilters({ filters, onChange, onReset, isMobile })
   const [open, setOpen] = useState(false)
   const { categories: CATEGORIES, brands: BRANDS } = useProducts()
 
+  // Marca: multi-selección (checkbox original)
+  const toggleBrand = brand => {
+    const next = filters.brands.includes(brand)
+      ? filters.brands.filter(b => b !== brand)
+      : [...filters.brands, brand]
+    onChange({ ...filters, brands: next })
+  }
+
   // Categoría: selección única (radio)
   const selectCategory = id => {
     const next = filters.categories.includes(id) ? [] : [id]
@@ -57,7 +65,7 @@ export default function ProductFilters({ filters, onChange, onReset, isMobile })
               <input
                 type="checkbox"
                 checked={filters.brands.includes(brand)}
-                onChange={() => toggle('brands')(brand)}
+                onChange={() => toggleBrand(brand)}
                 className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
               />
               <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors">
