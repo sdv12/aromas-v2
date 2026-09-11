@@ -50,6 +50,24 @@ export default function ProductFilters({ filters, onChange, onReset, isMobile })
         <p className="text-[10px] text-gray-400 mt-1">Los precios mayoristas se muestran en cada producto</p>
       </div>
 
+      <Section title="Marca">
+        <div className="space-y-1.5">
+          {BRANDS.map(brand => (
+            <label key={brand} className="flex items-center gap-2 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={filters.brands.includes(brand)}
+                onChange={() => toggle('brands')(brand)}
+                className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              />
+              <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors">
+                {brand}
+              </span>
+            </label>
+          ))}
+        </div>
+      </Section>
+
       <Section title="Categoría">
         <div className="space-y-1.5">
           {CATEGORIES.map(cat => (
@@ -63,24 +81,6 @@ export default function ProductFilters({ filters, onChange, onReset, isMobile })
               />
               <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors">
                 {cat.icon} {cat.label}
-              </span>
-            </label>
-          ))}
-        </div>
-      </Section>
-
-      <Section title="Marca">
-        <div className="space-y-1.5">
-          {BRANDS.map(brand => (
-            <label key={brand} className="flex items-center gap-2 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={filters.brands.includes(brand)}
-                onChange={() => toggle('brands')(brand)}
-                className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-              />
-              <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors">
-                {brand}
               </span>
             </label>
           ))}
