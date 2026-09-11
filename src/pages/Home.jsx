@@ -76,6 +76,13 @@ const PROMOS = [
   },
 ]
 
+const FRAGANCIAS = [
+  'Lima & Verbena', 'Lavanda', 'Vainilla & Canela', 'Flores Blancas',
+  'Coco & Vainilla', 'Eucalipto & Menta', 'Rosa', 'Jazmín',
+  'Sandía & Frutas', 'Cedro & Madera', 'Citrus Fresh', 'Musk Blanco',
+  'Manzana Verde', 'Melón', 'Pino', 'Frutilla',
+]
+
 export default function Home() {
   usePageTitle(null)
   const [slide, setSlide]   = useState(0)
@@ -88,6 +95,10 @@ export default function Home() {
 
   // Featured products carousel
   const featCarouselRef = useRef(null)
+
+  // Modal de fragancia para promos
+  const [promoModal, setPromoModal] = useState(null) // { promo, qty }
+  const [selectedFragancia, setSelectedFragancia] = useState('')
 
   useEffect(() => {
     const id = setInterval(() => setSlide(s => (s + 1) % SLIDES.length), 5000)
@@ -106,6 +117,31 @@ export default function Home() {
     }, 3200)
     return () => clearInterval(id)
   }, [featured])
+
+  const openPromoModal = (promo, qty) => {
+    setSelectedFragancia('')
+    setPromoModal({ promo, qty })
+  }
+
+  const confirmPromo = () => {
+    if (!promoModal) return
+    const { promo, qty } = promoModal
+    const fragLabel = selectedFragancia ? ` — ${selectedFragancia}` : ''
+    const item = {
+      id: `promo-${promo.producto.replace(/\s+/g, '-').toLowerCase()}-${qty}-${selectedFragancia.replace(/\s+/g,'-')}`,
+      name: `[PROMO] ${promo.producto}${fragLabel} — Pack ${qty} u. (${promo.presentacion})`,
+      price: qty === 24 ? promo.uni24 : promo.uni48,
+      wholesalePrice: qty === 24 ? promo.uni24 : promo.uni48,
+      image: '',
+      brand: 'Aura',
+      stock: 999,
+      rating: 5,
+      reviews: 0,
+    }
+    addItem(item)
+    addToast({ type: 'success', title: 'Promo agregada', message: item.name })
+    setPromoModal(null)
+  }
 
   const addPromoToCart = (promo, qty) => {
     const item = {
@@ -281,26 +317,21 @@ export default function Home() {
                   <p className="text-primary-300 text-xs mt-0.5">{p.presentacion}</p>
                 </div>
                 <div className="space-y-2">
-                  <button
-                    onClick={() => addPromoToCart(p, 24)}
-                    className="w-full flex items-center justify-between bg-accent-600/20 border border-accent-500/30 rounded-xl px-3 py-2 hover:bg-accent-500/30 transition-colors group"
-                  >
-                    <span className="text-accent-300 text-xs font-bold">24 UNI</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-white font-extrabold text-sm">${p.uni24.toLocaleString('es-AR')}</span>
-                      <ShoppingCart size={13} className="text-accent-300 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => addPromoToCart(p, 48)}
-                    className="w-full flex items-center justify-between bg-accent-500/20 border border-accent-400/30 rounded-xl px-3 py-2 hover:bg-accent-400/30 transition-colors group"
-                  >
-                    <span className="text-accent-200 text-xs font-bold">48 UNI</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-white font-extrabold text-sm">${p.uni48.toLocaleString('es-AR')}</span>
-                      <ShoppingCart size={13} className="text-accent-200 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                  </button>
+                  {[{ qty: 24, price: p.uni24, color: 'accent-600/20 border-accent-500/30 hover:bg-accent-500/30', textColor: 'text-accent-300' },
+                    { qty: 48, price: p.uni48, color: 'accent-500/20 border-accent-400/30 hover:bg-accent-400/30', textColor: 'text-accent-200' }
+                  ].map(({ qty, price, color, textColor }) => (
+                    <button
+                      key={qty}
+                      onClick={() => openPromoModal(p, qty)}
+                      className={`w-full flex items-center justify-between bg-${color} rounded-xl px-3 py-2 transition-colors group`}
+                    >
+                      <span className={`${textColor} text-xs font-bold`}>{qty} UNI</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-white font-extrabold text-sm">${price.toLocaleString('es-AR')}</span>
+                        <ShoppingCart size={13} className={`${textColor} opacity-0 group-hover:opacity-100 transition-opacity`} />
+                      </div>
+                    </button>
+                  ))}
                 </div>
               </div>
             ))}
@@ -337,6 +368,54 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Modal fragancia promo */}
+      {promoModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+          <div className="bg-white dark:bg-navy-900 rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4">
+            <div>
+              <p className="text-xs text-accent-500 font-semibold uppercase tracking-wider mb-1">Promo — {promoModal.qty} unidades</p>
+              <h3 className="font-display text-xl font-semibold text-gray-900 dark:text-white">{promoModal.promo.producto}</h3>
+              <p className="text-sm text-gray-400">{promoModal.promo.presentacion}</p>
+            </div>
+
+            <div>
+              <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Elegí la fragancia:</p>
+              <div className="grid grid-cols-2 gap-1.5 max-h-52 overflow-y-auto pr-1">
+                {FRAGANCIAS.map(f => (
+                  <button
+                    key={f}
+                    onClick={() => setSelectedFragancia(f)}
+                    className={`text-xs px-3 py-2 rounded-lg border text-left transition-all ${
+                      selectedFragancia === f
+                        ? 'border-primary-600 bg-primary-50 dark:bg-navy-800 text-primary-700 dark:text-accent-400 font-semibold'
+                        : 'border-cream-300 dark:border-navy-600 text-gray-600 dark:text-gray-400 hover:border-primary-400'
+                    }`}
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-1">
+              <button
+                onClick={() => setPromoModal(null)}
+                className="flex-1 btn-ghost border border-cream-300 dark:border-navy-700 text-sm"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmPromo}
+                disabled={!selectedFragancia}
+                className="flex-1 flex items-center justify-center gap-1.5 bg-primary-700 hover:bg-primary-800 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold py-2.5 rounded-lg transition-all"
+              >
+                <ShoppingCart size={15} /> Agregar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* CTA */}
       <section className="py-16 bg-gradient-to-br from-primary-600 to-primary-800 text-white text-center">
