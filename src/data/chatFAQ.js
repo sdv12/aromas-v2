@@ -1,0 +1,85 @@
+// Pares pregunta-respuesta del chatbot. triggers: palabras clave normalizadas (sin tildes, minúsculas).
+export const FAQ = [
+  {
+    id: 'envios',
+    question: '¿Hacen envíos?',
+    triggers: ['envio', 'envios', 'mandan', 'entregan', 'despachan', 'llegada', 'buenos aires', 'mendoza', 'rosario', 'interior', 'pais', 'domicilio', 'shipping', 'llega'],
+    answer: 'Enviamos a todo el país 🚚\n\n• Córdoba Capital: $8.000 (gratis superando $120.000)\n• Interior Córdoba y país: por correo o encomienda\n\nEl tiempo depende del destino.',
+    quick: ['¿Cuánto tarda?', 'Retiro en sucursal', 'Volver al inicio'],
+  },
+  {
+    id: 'tiempo_envio',
+    triggers: ['tarda', 'tiempo', 'cuanto demora', 'dias', 'cuando llega', 'plazo', 'demora', 'rapido'],
+    answer: 'Los tiempos estimados son ⏱\n\n• Córdoba Capital: 24–48 hs\n• Interior de Córdoba: 2–4 días\n• Resto del país: 3–7 días hábiles\n\n(varía según correo y zona)',
+    quick: ['¿Cuánto cuesta el envío?', 'Volver al inicio'],
+  },
+  {
+    id: 'retiro',
+    triggers: ['retiro', 'retirar', 'sucursal', 'local', 'buscar', 'pasar a buscar', 'presencial', 'donde queda', 'donde estan', 'domicilio sucursal'],
+    answer: 'Podés retirar tu pedido en nuestra sucursal en Córdoba Capital 📍\n\nElegí "Retiro en sucursal" al hacer el checkout y coordinamos el horario por WhatsApp.',
+    quick: ['Escribir por WhatsApp', 'Horarios de atención', 'Volver al inicio'],
+  },
+  {
+    id: 'pagos',
+    triggers: ['pago', 'pagar', 'efectivo', 'transferencia', 'tarjeta', 'mercadopago', 'mercado pago', 'como pago', 'formas de pago', 'metodo', 'cbu', 'alias'],
+    answer: 'Aceptamos 💳\n\n• Efectivo (al retirar o recibir)\n• Transferencia bancaria — te enviamos el CBU/Alias por WhatsApp\n\nNo aceptamos tarjetas por ahora.',
+    quick: ['¿Cómo hago un pedido?', 'Volver al inicio'],
+  },
+  {
+    id: 'pedido',
+    triggers: ['pedido', 'pedir', 'comprar', 'como compro', 'hacer un pedido', 'carrito', 'checkout', 'proceso', 'pasos'],
+    answer: 'Hacer un pedido es muy simple 🛒\n\n1. Elegí tus productos en el catálogo\n2. Agregalos al carrito\n3. Completá tus datos\n4. Elegí envío y pago\n5. Confirmá por WhatsApp\n\n¡Y listo! Te avisamos cuando despachamos.',
+    quick: ['Ver catálogo', '¿Cómo pago?', 'Volver al inicio'],
+  },
+  {
+    id: 'mayorista',
+    triggers: ['mayorista', 'mayoreo', 'por mayor', 'revender', 'revendedor', 'negocio', 'comercio', 'minorista', 'descuento', 'precio especial', 'minimo', 'cantidad'],
+    answer: 'Tenemos precios por volumen 🏪\n\n• Minorista: precio normal\n• Mín. 3 unidades: precio especial\n• Mín. 48 unidades: mejor precio\n• Mín. 120 unidades: precio máximo\n\nLos 4 niveles aparecen en cada producto del catálogo.',
+    quick: ['¿Querés ser distribuidor?', 'Ver catálogo', 'Volver al inicio'],
+  },
+  {
+    id: 'distribuidor',
+    triggers: ['distribuidor', 'distribuir', 'franquicia', 'ser distribuidor', 'quiero distribuir', 'vender para', 'revender'],
+    answer: 'Si te interesa ser distribuidor de Aura, escribinos por WhatsApp 🤝\n\nTe contamos los requisitos, condiciones y beneficios del programa.',
+    quick: ['Escribir por WhatsApp', 'Volver al inicio'],
+    whatsapp: 'Hola, me interesa ser distribuidor de Aura. ¿Me podés dar más información?',
+  },
+  {
+    id: 'fragancias',
+    triggers: ['fragancia', 'fragancias', 'olor', 'olores', 'aroma', 'aromas', 'perfume', 'lavanda', 'vainilla', 'jazmin', 'rosa', 'citrus', 'disponibles', 'variedades', 'tipos'],
+    answer: 'Tenemos más de 16 fragancias 🌸\n\nLima & Verbena, Lavanda, Vainilla & Canela, Flores Blancas, Coco & Vainilla, Eucalipto & Menta, Rosa, Jazmín, Sandía & Frutas, Cedro & Madera, Citrus Fresh, Musk Blanco, Manzana Verde, Melón, Pino, Frutilla.\n\nLa disponibilidad varía según el producto.',
+    quick: ['Ver catálogo', '¿Sin stock?', 'Volver al inicio'],
+  },
+  {
+    id: 'stock',
+    triggers: ['stock', 'sin stock', 'agotado', 'hay', 'tienen', 'queda', 'quedan', 'disponible', 'no hay'],
+    answer: 'El stock se actualiza en tiempo real en el catálogo 📦\n\nSi un producto está agotado podés escribirnos por WhatsApp para anotarte en lista de espera.',
+    quick: ['Escribir por WhatsApp', 'Ver catálogo', 'Volver al inicio'],
+    whatsapp: 'Hola, me interesa un producto que está sin stock. ¿Me podés avisar cuando vuelva?',
+  },
+  {
+    id: 'horarios',
+    triggers: ['horario', 'horarios', 'atienden', 'cuando atienden', 'abierto', 'disponible', 'hora', 'atencion', 'contacto'],
+    answer: 'Atendemos 🕘\n\n• Lunes a Sábado: 9 a 18 hs\n• Domingos: cerrado\n\nPodés dejarnos tu consulta por WhatsApp y te respondemos a la brevedad.',
+    quick: ['Escribir por WhatsApp', 'Volver al inicio'],
+  },
+  {
+    id: 'cambios',
+    triggers: ['cambio', 'devolucion', 'devolver', 'cambiar', 'garantia', 'problema', 'roto', 'danado', 'mal estado', 'falla'],
+    answer: 'Si recibiste un producto con algún problema, escribinos por WhatsApp dentro de las 48 hs con una foto 🔄\n\nLo resolvemos rápido.',
+    quick: ['Escribir por WhatsApp', 'Volver al inicio'],
+    whatsapp: 'Hola, recibí un producto con un problema y necesito hacer un cambio.',
+  },
+  {
+    id: 'promos',
+    triggers: ['promo', 'promos', 'promocion', 'promociones', 'oferta', 'ofertas', 'descuento', 'descuentos', 'combo', 'pack'],
+    answer: 'Tenemos promos del mes con precios especiales 🎁\n\nPacks de 24 y 48 unidades en:\n• Aromatizante Ambiente 250ml\n• Difusor 60ml con varillas\n• Difusor para auto\n• Desodorante concentrado 500ml\n• Esencia para humidificador\n\nEncontralos en la sección Promos de la Home.',
+    quick: ['Ver catálogo', 'Precios mayoristas', 'Volver al inicio'],
+  },
+  {
+    id: 'productos',
+    triggers: ['productos', 'que venden', 'que tienen', 'catalogo', 'que ofrecen', 'linea', 'lineas', 'que tipo'],
+    answer: 'Nuestra línea incluye 🌿\n\n• Aromatizantes ambiente y telas\n• Difusores de ambiente (con varillas)\n• Difusores para auto\n• Desodorantes concentrados\n• Esencias para humidificador\n• Velas aromáticas\n• Spray textil\n\nTodo con +16 fragancias disponibles.',
+    quick: ['Ver catálogo', 'Fragancias disponibles', 'Volver al inicio'],
+  },
+]

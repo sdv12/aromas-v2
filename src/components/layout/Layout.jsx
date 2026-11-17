@@ -4,6 +4,7 @@ import WhatsAppButton  from '../ui/WhatsAppButton'
 import AuthModal       from '../auth/AuthModal'
 import ToastContainer  from '../ui/ToastContainer'
 import CartSidebar     from '../cart/CartSidebar'
+import ChatBot         from '../chat/ChatBot'
 import { ToastProvider } from '../../context/ToastContext'
 
 export default function Layout({ children }) {
@@ -17,6 +18,7 @@ export default function Layout({ children }) {
         <Footer />
         <CartSidebar />
         <WhatsAppButton />
+        <ChatBot />
         <AuthModal />
         <ToastContainer />
       </div>
